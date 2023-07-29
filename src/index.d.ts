@@ -1,15 +1,17 @@
 export type ID = string;
 
-export interface State {
+export interface State<T = unknown> {
 	// value: unknown;
 	// ConnectedWidgets: Record<ID, Widget>;
 	// ConnectedFunctions: Array<(value: unknown) => void>;
 
-	get(): unknown;
-	set(newValue: unknown): void;
-	onChange(functionToConnect: (value: unknown) => void): void;
+	get(): T;
+	set(newValue: T): void;
+	onChange(functionToConnect: (value: T) => void): void;
 }
 export type States = Record<string, State>;
+
+export type Stateify<T extends object> = { [P in keyof T]: State<T> };
 
 export interface Event {
 	Init: (widget: Widget) => void;
@@ -17,7 +19,8 @@ export interface Event {
 }
 export type Events = Record<string, Event>;
 
-export interface Widget<T extends object = object> {
+// TODO: make it so you can index it
+export type Widget<T extends object = object> = {
 	ID: ID;
 	type: string;
 	state: States;
@@ -40,7 +43,7 @@ export interface Widget<T extends object = object> {
 	lastCtrlClickedTick: number;
 	lastCheckedTick: number;
 	lastUncheckedTick: number;
-}
+} & Stateify<T>;
 
 export type Argument = unknown;
 export type Arguments = Record<string, Argument>;
@@ -113,7 +116,7 @@ export interface WidgetUtility {
 	abstractButton: WidgetClass;
 }
 
-export interface Iris {
+interface IrisDefinition {
 	SelectionImageObject: Frame;
 	parentInstance: BasePlayerGui;
 
@@ -131,8 +134,8 @@ export interface Iris {
 	ComputedState: (firstState: State, onChangeCallback: (firstState: unknown) => unknown) => State;
 
 	Init:
-		| ((parentInstance?: BasePlayerGui, eventConnection?: RBXScriptConnection) => Iris)
-		| ((parentInstance?: BasePlayerGui, eventConnection?: () => void) => Iris);
+		| ((parentInstance?: BasePlayerGui, eventConnection?: RBXScriptConnection) => IrisDefinition)
+		| ((parentInstance?: BasePlayerGui, eventConnection?: () => void) => IrisDefinition);
 	Connect(callback: () => void): void;
 
 	Append: (userInstance: GuiObject) => void;
@@ -163,7 +166,7 @@ export interface Iris {
 
 	// ROBLOX-TS DEVIATION: InputEnum's original signature is `(args: WidgetArguments, state?: States, enumType: Enum) => Widget;`,
 	// but obviously TypeScript doesn't like that.
-	InputEnum: (args: WidgetArguments, enumType: Enum, state?: States) => Widget;
+	InputEnum: <T extends Record<string, unknown>>(args: WidgetArguments, enumType: Enum, state?: T) => Widget<T>;
 	Combo: (args: WidgetArguments, state?: States) => Widget;
 
 	// ROBLOX-TS DEVIATION: ComboArray's original signature is `(args: WidgetArguments, state?: States, selectionArray: Array<unknown>) => Widget;`,
@@ -291,4 +294,5 @@ export interface Config {
 	MouseDragThreshold: number;
 }
 
+declare const Iris: IrisDefinition;
 export default Iris;
