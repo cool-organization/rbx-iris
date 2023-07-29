@@ -1,7 +1,7 @@
-export type ID = string;
+import { WidgetEnums } from "./types";
 
 export interface State<T = unknown> {
-	// value: unknown;
+	readonly value: T;
 	// ConnectedWidgets: Record<ID, Widget>;
 	// ConnectedFunctions: Array<(value: unknown) => void>;
 
@@ -11,23 +11,41 @@ export interface State<T = unknown> {
 }
 export type States = Record<string, State>;
 
-export type Stateify<T extends object> = { [P in keyof T]: State<T> };
+export type Stateify<T extends object> = { [P in keyof T]: State<T[P]> };
 
 export interface Event {
 	Init: (widget: Widget) => void;
 	Get: (widget: Widget) => boolean;
 }
-export type Events = Record<string, Event>;
+export interface Events {
+	active: () => boolean;
+	checked: () => boolean;
+	clicked: () => boolean;
+	closed: () => boolean;
+	collapsed: () => boolean;
+	collasped: () => boolean;
+	ctrlClicked: () => boolean;
+	doubleClicked: () => boolean;
+	hovered: () => boolean;
+	numberChanged: () => boolean;
+	opened: () => boolean;
+	rightClicked: () => boolean;
+	selected: () => boolean;
+	textChanged: () => boolean;
+	unchecked: () => boolean;
+	uncollapsed: () => boolean;
+	unselected: () => boolean;
+}
 
 // TODO: make it so you can index it
-export type Widget<T extends object = object> = {
-	ID: ID;
+export type Widget<T extends object = object, Args extends Arguments = Record<string, unknown>> = {
+	ID: string;
 	type: string;
 	state: States;
 
 	parentWidget: Widget;
 	Instance: GuiObject;
-	arguments: Arguments;
+	arguments: Args;
 
 	ZIndex: number;
 
@@ -47,7 +65,7 @@ export type Widget<T extends object = object> = {
 
 export type Argument = unknown;
 export type Arguments = Record<string, Argument>;
-export type WidgetArguments = Array<Argument>;
+export type WidgetArguments = Array<Argument> | Record<number, Argument>;
 
 export declare class WidgetClass {
 	Generate(): GuiObject;
@@ -116,22 +134,83 @@ export interface WidgetUtility {
 	abstractButton: WidgetClass;
 }
 
-interface IrisDefinition {
+interface Widgets {
+	End: () => void;
+	Text: (args: WidgetArguments) => Widget;
+	TextColored: (args: WidgetArguments) => Widget;
+	TextWrapped: (args: WidgetArguments) => Widget;
+
+	Button: (args: WidgetArguments) => Widget & { clicked: () => boolean };
+	SmallButton: (args: WidgetArguments) => Widget & { clicked: () => boolean };
+	Checkbox: <T extends Record<string, unknown> = { isChecked: boolean }>(
+		args: WidgetArguments,
+		state?: T,
+	) => Widget<T>;
+	RadioButton: <T extends Record<string, unknown>>(
+		args: WidgetArguments,
+		state?: T,
+	) => Widget<T> & { active: () => boolean };
+
+	Separator: (args: WidgetArguments) => Widget;
+	Indent: (args: WidgetArguments) => Widget;
+	SameLine: (args?: WidgetArguments) => Widget;
+	Group: (args: WidgetArguments) => Widget;
+	Selectable: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+
+	Tree: <T extends Record<string, unknown>>(
+		args: WidgetArguments,
+		state?: T,
+	) => Widget<T> & { isUncollapsed: State<boolean> | boolean };
+
+	CollapsingHeader: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+
+	DragNum: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+	SliderNum: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+
+	InputNum: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+	InputText: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+
+	// ROBLOX-TS DEVIATION: InputEnum's original signature is `(args: WidgetArguments, state?: States, enumType: Enum) => Widget;`,
+	// but obviously TypeScript doesn't like that.
+	InputEnum: <T extends Record<string, unknown>>(args: WidgetArguments, enumType: Enum, state?: T) => Widget<T>;
+	Combo: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+
+	// ROBLOX-TS DEVIATION: ComboArray's original signature is `(args: WidgetArguments, state?: States, selectionArray: Array<unknown>) => Widget;`,
+	// but obviously TypeScript doesn't like that.
+	ComboArray: <T extends Record<string, unknown>>(
+		args: WidgetArguments,
+		selectionArray: Array<unknown>,
+		state?: T,
+	) => Widget<T>;
+
+	Table<T extends Record<string, unknown>>(this: void, args: WidgetArguments, state?: T): Widget<T>;
+	Table<T extends Record<string, unknown>>(this: void, args: Record<number, unknown>, state?: T): Widget<T>;
+
+	Window: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+	Tooltip: (args: WidgetArguments) => Widget;
+}
+
+interface IrisDefinition extends Widgets {
 	SelectionImageObject: Frame;
 	parentInstance: BasePlayerGui;
 
-	Args: {};
+	Args: { [key in keyof Widgets]: key extends keyof WidgetEnums ? WidgetEnums[key] : Record<string, number> };
+	Events: Record<string, () => boolean>;
 
-	SetNextWidgetID: (ID: ID) => void;
+	// ROBLOX-TS DEVIATION: This isn't from the original library.
+	GetConfig: () => Config;
+
+	SetNextWidgetID: (ID: string) => void;
 	ForceRefresh: () => void;
 	WidgetConstructor: (type: string, widgetClass: WidgetClass) => void;
 
 	UpdateGlobalConfig: (deltaStyle: Config) => void;
-	PushConfig: (deltaStyle: Config) => void;
+	PushConfig: (deltaStyle: Partial<Config>) => void;
 	PopConfig: () => void;
 
-	State: (initialValue: unknown) => void;
-	ComputedState: (firstState: State, onChangeCallback: (firstState: unknown) => unknown) => State;
+	ComputedState: <T, S extends State<T>, U>(firstState: S, onChangeCallback: (firstState: T) => U) => State<U>;
+	State: <T>(initialValue: T) => State<T>;
+	WeakState: <T>(initialValue: T) => State<T>;
 
 	Init:
 		| ((parentInstance?: BasePlayerGui, eventConnection?: RBXScriptConnection) => IrisDefinition)
@@ -139,48 +218,13 @@ interface IrisDefinition {
 	Connect(callback: () => void): void;
 
 	Append: (userInstance: GuiObject) => void;
-
-	End: () => void;
-	Text: (args: WidgetArguments) => Widget;
-	TextColored: (args: WidgetArguments) => Widget;
-	TextWrapped: (args: WidgetArguments) => Widget;
-
-	Button: (args: WidgetArguments) => Widget;
-	SmallButton: (args: WidgetArguments) => Widget;
-	Checkbox: (args: WidgetArguments, state?: States) => Widget;
-	RadioButton: (args: WidgetArguments, state?: States) => Widget;
-
-	Separator: (args: WidgetArguments) => Widget;
-	Indent: (args: WidgetArguments) => Widget;
-	SameLine: (args: WidgetArguments) => Widget;
-	Group: (args: WidgetArguments) => Widget;
-	Selectable: (args: WidgetArguments, state?: States) => Widget;
-
-	Tree: (args: WidgetArguments, state?: States) => Widget;
-	CollapsingHeader: (args: WidgetArguments, state?: States) => Widget;
-
-	DragNum: (args: WidgetArguments, state?: States) => Widget;
-	SliderNum: (args: WidgetArguments, state?: States) => Widget;
-	InputNum: (args: WidgetArguments, state?: States) => Widget;
-	InputText: (args: WidgetArguments, state?: States) => Widget;
-
-	// ROBLOX-TS DEVIATION: InputEnum's original signature is `(args: WidgetArguments, state?: States, enumType: Enum) => Widget;`,
-	// but obviously TypeScript doesn't like that.
-	InputEnum: <T extends Record<string, unknown>>(args: WidgetArguments, enumType: Enum, state?: T) => Widget<T>;
-	Combo: (args: WidgetArguments, state?: States) => Widget;
-
-	// ROBLOX-TS DEVIATION: ComboArray's original signature is `(args: WidgetArguments, state?: States, selectionArray: Array<unknown>) => Widget;`,
-	// but obviously TypeScript doesn't like that.
-	ComboArray: (args: WidgetArguments, selectionArray: Array<unknown>, state?: States) => Widget;
-
-	Table: (args: WidgetArguments, state?: States) => Widget;
 	NextColumn: () => void;
 	SetColumnIndex: (columnIndex: number) => void;
 	NextRow: () => void;
 
-	Window: (args: WidgetArguments, state?: States) => Widget;
-	Tooltip: (args: WidgetArguments) => Widget;
 	SetFocusedWindow: (thisWidget?: Widget) => void;
+	PushId: (input: number | string) => void;
+	PopId: () => void;
 }
 
 export interface Config {

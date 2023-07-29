@@ -21,7 +21,7 @@ Iris._rootWidget = {
 }
 Iris._states = {} -- Iris.States
 Iris._postCycleCallbacks = {}
-Iris._connectedFunctions = {} -- functions which run each Iris cycle, connected by the user
+Iris._connectedWeakStateFunctions = {} -- functions which run each Iris cycle, connected by the user
 -- these following variables aid in computing Iris._cycle, they are variable while the code to render widgets is being caleld
 Iris._IDStack = {"R"}
 Iris._usedIDs = {} -- hash of IDs which are already used in a cycle, value is the # of occurances so that getID can assign a unique ID for each occurance
@@ -31,6 +31,10 @@ Iris._cycleTick = 0 -- increments for each call to Cycle, used to determine the 
 Iris._widgetCount = 0 -- only used to compute ZIndex, resets to 0 for every cycle
 Iris._lastWidget = Iris._rootWidget -- widget which was most recently rendered
 Iris._cycleCoroutine = nil -- coroutine which calls functions connected each cycle, used to check if any functions yield
+
+function Iris.GetConfig()
+	return Iris._config
+end
 
 function Iris._generateSelectionImageObject()
 	if Iris.SelectionImageObject then
