@@ -11,7 +11,7 @@ export interface State<T = unknown> {
 }
 export type States = Record<string, State>;
 
-export type Stateify<T extends object> = { [P in keyof T]: State<T[P]> };
+export type Stateify<T extends object> = { [P in keyof T]: T[P] extends State ? T[P] : State<T[P]> };
 
 export interface Event {
 	Init: (widget: Widget) => void;
@@ -41,7 +41,7 @@ export interface Events {
 export type Widget<T extends object = object, Args extends Arguments = Record<string, unknown>> = {
 	ID: string;
 	type: string;
-	state: States;
+	state: Stateify<T>;
 
 	parentWidget: Widget;
 	Instance: GuiObject;
@@ -134,46 +134,69 @@ export interface WidgetUtility {
 	abstractButton: WidgetClass;
 }
 
+interface Hovered {
+	hovered: () => boolean;
+}
+
+interface Clicked {
+	clicked: () => boolean;
+}
+
+interface NumberChanged {
+	numberChanged: () => boolean;
+}
+
+interface DoubleClicked {
+	doubleClicked: () => boolean;
+}
+
 interface Widgets {
 	End: () => void;
-	Text: (args: WidgetArguments) => Widget;
-	TextColored: (args: WidgetArguments) => Widget;
-	TextWrapped: (args: WidgetArguments) => Widget;
+	Text: (args: WidgetArguments) => Widget & Hovered;
+	TextColored: (args: WidgetArguments) => Widget & Hovered;
+	TextWrapped: (args: WidgetArguments) => Widget & Hovered;
 
-	Button: (args: WidgetArguments) => Widget & { clicked: () => boolean };
-	SmallButton: (args: WidgetArguments) => Widget & { clicked: () => boolean };
+	Button: (args: WidgetArguments) => Widget & Clicked;
+	SmallButton: (args: WidgetArguments) => Widget & Clicked;
 	Checkbox: <T extends Record<string, unknown> = { isChecked: boolean }>(
 		args: WidgetArguments,
 		state?: T,
-	) => Widget<T>;
+	) => Widget<T> & { checked: () => boolean };
 	RadioButton: <T extends Record<string, unknown>>(
 		args: WidgetArguments,
 		state?: T,
 	) => Widget<T> & { active: () => boolean };
 
-	Separator: (args: WidgetArguments) => Widget;
-	Indent: (args: WidgetArguments) => Widget;
+	Separator: (args?: WidgetArguments) => Widget;
+	Indent: (args?: WidgetArguments) => Widget;
 	SameLine: (args?: WidgetArguments) => Widget;
-	Group: (args: WidgetArguments) => Widget;
-	Selectable: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+	Group: (args?: WidgetArguments) => Widget;
+	Selectable: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T> & DoubleClicked;
 
-	Tree: <T extends Record<string, unknown>>(
+	Tree: <T extends Record<string, unknown> & { isUncollapsed: boolean }>(
 		args: WidgetArguments,
 		state?: T,
-	) => Widget<T> & { isUncollapsed: State<boolean> | boolean };
+	) => Widget<T> & { isUncollapsed: State<boolean> };
 
 	CollapsingHeader: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
 
 	DragNum: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
 	SliderNum: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
 
-	InputNum: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+	InputNum: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T> & NumberChanged;
 	InputText: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
 
 	// ROBLOX-TS DEVIATION: InputEnum's original signature is `(args: WidgetArguments, state?: States, enumType: Enum) => Widget;`,
 	// but obviously TypeScript doesn't like that.
 	InputEnum: <T extends Record<string, unknown>>(args: WidgetArguments, enumType: Enum, state?: T) => Widget<T>;
 	Combo: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+
+	InputVector2: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+	InputVector3: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+	InputUDim: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+	InputUDim2: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+	InputColor3: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
+	InputColor4: <T extends Record<string, unknown>>(args: WidgetArguments, state?: T) => Widget<T>;
 
 	// ROBLOX-TS DEVIATION: ComboArray's original signature is `(args: WidgetArguments, state?: States, selectionArray: Array<unknown>) => Widget;`,
 	// but obviously TypeScript doesn't like that.
