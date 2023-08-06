@@ -1,5 +1,5 @@
 {
-  "name": "@rbxts/rbx-iris",
+  "name": "@rbxts/iris",
   "version": "1.0.0",
   "description": "",
   "main": "out/init.lua",
@@ -7,6 +7,10 @@
     "build": "rbxtsc",
     "watch": "rbxtsc -w",
     "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cool-organization/rbx-iris"
   },
   "keywords": [],
   "author": "",
