@@ -34,7 +34,7 @@
 				"endOfLine": "auto"
 			}
 		],
-
+		"@typescript-eslint/no-explicit-any": "off",
 		"roblox-ts/no-private-identifier": "off"
 	}
 }
