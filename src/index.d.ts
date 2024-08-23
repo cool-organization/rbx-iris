@@ -1,4 +1,3 @@
-import { IrisDefinition } from "./IrisDeclaration";
+import Iris from "./lib";
 
-declare const Iris: IrisDefinition;
 export = Iris;

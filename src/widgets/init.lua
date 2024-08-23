@@ -13,12 +13,11 @@ return function(Iris: Types.Internal)
         RIGHT_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_right.png",
         DOWN_POINTING_TRIANGLE = "rbxasset://textures/DeveloperFramework/button_arrow_down.png",
         MULTIPLICATION_SIGN = "rbxasset://textures/AnimationEditor/icon_close.png", -- best approximation for a close X which roblox supports, needs to be scaled about 2x
-        BOTTOM_RIGHT_CORNER = "\u{25E2}", -- used in window resize icon in bottom right
+        BOTTOM_RIGHT_CORNER = "rbxasset://textures/ui/InspectMenu/gr-item-selector-triangle.png", -- used in window resize icon in bottom right
         CHECK_MARK = "rbxasset://textures/AnimationEditor/icon_checkmark.png",
         ALPHA_BACKGROUND_TEXTURE = "rbxasset://textures/meshPartFallback.png", -- used for color4 alpha
+        UNKNOWN_TEXTURE = "rbxasset://textures/ui/GuiImagePlaceholder.png",
     }
-
-    widgets.GuiInset = widgets.GuiService:GetGuiInset()
 
     widgets.IS_STUDIO = widgets.RunService:IsStudio()
     function widgets.getTime()
@@ -30,8 +29,26 @@ return function(Iris: Types.Internal)
         end
     end
 
+    -- acts as an offset where the absolute position of the base frame is not zero, such as IgnoreGuiInset or for stories
+    widgets.GuiOffset = Vector2.zero
+    -- the registered mouse position always ignores the topbar, so needs a separate variable offset
+    widgets.MouseOffset = if Iris._config.IgnoreGuiInset then Vector2.zero else widgets.GuiService:GetGuiInset()
+
+    -- the topbar inset changes updates a frame later.
+    local connection: RBXScriptConnection = widgets.GuiService:GetPropertyChangedSignal("TopbarInset"):Once(function()
+        widgets.MouseOffset = if Iris._config.IgnoreGuiInset then Vector2.zero else widgets.GuiService:GetGuiInset()
+    end)
+    -- in case the topbar doesn't change, we cancel the event.
+    task.delay(3, function()
+        connection:Disconnect()
+    end)
+
     function widgets.getMouseLocation(): Vector2
-        return widgets.UserInputService:GetMouseLocation() - widgets.GuiInset
+        return widgets.UserInputService:GetMouseLocation() - widgets.MouseOffset
+    end
+
+    function widgets.isPosInsideRect(pos: Vector2, rectMin: Vector2, rectMax: Vector2): boolean
+        return pos.X > rectMin.X and pos.X < rectMax.X and pos.Y > rectMin.Y and pos.Y < rectMax.Y
     end
 
     function widgets.findBestWindowPosForPopup(refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2): Vector2
@@ -54,13 +71,26 @@ return function(Iris: Types.Internal)
         return clampedPos
     end
 
-    function widgets.isPosInsideRect(pos: Vector2, rectMin: Vector2, rectMax: Vector2): boolean
-        return pos.X > rectMin.X and pos.X < rectMax.X and pos.Y > rectMin.Y and pos.Y < rectMax.Y
+    function widgets.getScreenSizeForWindow(thisWidget: Types.Widget): Vector2 -- possible parents are GuiBase2d, CoreGui, PlayerGui
+        if thisWidget.Instance:IsA("GuiBase2d") then
+            return thisWidget.Instance.AbsoluteSize
+        else
+            local rootParent = thisWidget.Instance.Parent
+            if rootParent:IsA("GuiBase2d") then
+                return rootParent.AbsoluteSize
+            else
+                if rootParent.Parent:IsA("GuiBase2d") then
+                    return rootParent.AbsoluteSize
+                else
+                    return workspace.CurrentCamera.ViewportSize
+                end
+            end
+        end
     end
 
     function widgets.extend(superClass: Types.WidgetClass, subClass: Types.WidgetClass): Types.WidgetClass
         local newClass: Types.WidgetClass = table.clone(superClass)
-        for index: string, value: any in subClass do
+        for index: unknown, value: any in subClass do
             newClass[index] = value
         end
         return newClass
@@ -118,25 +148,6 @@ return function(Iris: Types.Internal)
         ObjectValue.Parent = Parent
 
         return ObjectValue
-    end
-
-    function widgets.getScreenSizeForWindow(thisWidget: Types.Widget): Vector2 -- possible parents are GuiBase2d, CoreGui, PlayerGui
-        local size: Vector2
-        if thisWidget.Instance:IsA("GuiBase2d") then
-            size = thisWidget.Instance.AbsoluteSize
-        else
-            local rootParent = thisWidget.Instance.Parent
-            if rootParent:IsA("GuiBase2d") then
-                size = rootParent.AbsoluteSize
-            else
-                if rootParent.Parent:IsA("GuiBase2d") then
-                    size = rootParent.AbsoluteSize
-                else
-                    size = workspace.CurrentCamera.ViewportSize
-                end
-            end
-        end
-        return size
     end
 
     -- below uses Iris
@@ -262,6 +273,47 @@ return function(Iris: Types.Internal)
         Button.SelectionImageObject = Iris.SelectionImageObject
     end
 
+    function widgets.applyImageInteractionHighlights(thisWidget: Types.Widget, Button: GuiButton, Highlightee: ImageButton, Colors: { [string]: any })
+        local exitedButton: boolean = false
+        widgets.applyMouseEnter(thisWidget, Button, function()
+            Highlightee.ImageColor3 = Colors.ButtonHoveredColor
+            Highlightee.ImageTransparency = Colors.ButtonHoveredTransparency
+
+            exitedButton = false
+        end)
+
+        widgets.applyMouseLeave(thisWidget, Button, function()
+            Highlightee.ImageColor3 = Colors.ButtonColor
+            Highlightee.ImageTransparency = Colors.ButtonTransparency
+
+            exitedButton = true
+        end)
+
+        widgets.applyInputBegan(thisWidget, Button, function(input: InputObject)
+            if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) then
+                return
+            end
+            Highlightee.ImageColor3 = Colors.ButtonActiveColor
+            Highlightee.ImageTransparency = Colors.ButtonActiveTransparency
+        end)
+
+        widgets.applyInputEnded(thisWidget, Button, function(input: InputObject)
+            if not (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Gamepad1) or exitedButton then
+                return
+            end
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                Highlightee.ImageColor3 = Colors.ButtonHoveredColor
+                Highlightee.ImageTransparency = Colors.ButtonHoveredTransparency
+            end
+            if input.UserInputType == Enum.UserInputType.Gamepad1 then
+                Highlightee.ImageColor3 = Colors.ButtonColor
+                Highlightee.ImageTransparency = Colors.ButtonTransparency
+            end
+        end)
+
+        Button.SelectionImageObject = Iris.SelectionImageObject
+    end
+
     function widgets.applyTextInteractionHighlights(thisWidget: Types.Widget, Button: GuiButton, Highlightee: TextLabel & TextButton & TextBox, Colors: { [string]: any })
         local exitedButton = false
         widgets.applyMouseEnter(thisWidget, Button, function()
@@ -303,101 +355,56 @@ return function(Iris: Types.Internal)
         Button.SelectionImageObject = Iris.SelectionImageObject
     end
 
-    function widgets.applyFrameStyle(thisInstance: GuiObject, forceNoPadding: boolean?, doubleyNoPadding: boolean?)
+    function widgets.applyFrameStyle(thisInstance: GuiObject, noPadding: boolean?, noCorner: boolean?)
         -- padding, border, and rounding
         -- optimized to only use what instances are needed, based on style
-        local FramePadding: Vector2 = Iris._config.FramePadding
         local FrameBorderSize: number = Iris._config.FrameBorderSize
-        local FrameBorderColor: Color3 = Iris._config.BorderColor
-        local FrameBorderTransparency: number = Iris._config.ButtonTransparency
         local FrameRounding: number = Iris._config.FrameRounding
+        thisInstance.BorderSizePixel = 0
 
-        if FrameBorderSize > 0 and FrameRounding > 0 then
-            thisInstance.BorderSizePixel = 0
-
-            local uiStroke: UIStroke = Instance.new("UIStroke")
-            uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            uiStroke.LineJoinMode = Enum.LineJoinMode.Round
-            uiStroke.Transparency = FrameBorderTransparency
-            uiStroke.Thickness = FrameBorderSize
-            uiStroke.Color = FrameBorderColor
-
+        if FrameBorderSize > 0 then
+            widgets.UIStroke(thisInstance, FrameBorderSize, Iris._config.BorderColor, Iris._config.BorderTransparency)
+        end
+        if FrameRounding > 0 and not noCorner then
             widgets.UICorner(thisInstance, FrameRounding)
-            uiStroke.Parent = thisInstance
-
-            if not forceNoPadding then
-                widgets.UIPadding(thisInstance, Iris._config.FramePadding)
-            end
-        elseif FrameBorderSize < 1 and FrameRounding > 0 then
-            thisInstance.BorderSizePixel = 0
-
-            widgets.UICorner(thisInstance, FrameRounding)
-            if not forceNoPadding then
-                widgets.UIPadding(thisInstance, Iris._config.FramePadding)
-            end
-        elseif FrameRounding < 1 then
-            thisInstance.BorderSizePixel = FrameBorderSize
-            thisInstance.BorderColor3 = FrameBorderColor
-            thisInstance.BorderMode = Enum.BorderMode.Inset
-
-            if not forceNoPadding then
-                widgets.UIPadding(thisInstance, FramePadding - Vector2.new(FrameBorderSize, FrameBorderSize))
-            elseif not doubleyNoPadding then
-                widgets.UIPadding(thisInstance, -Vector2.new(FrameBorderSize, FrameBorderSize))
-            end
+        end
+        if not noPadding then
+            widgets.UIPadding(thisInstance, Iris._config.FramePadding)
         end
     end
 
-    function widgets.applyButtonClick(thisWidget: Types.Widget, thisInstance: GuiButton, callback: () -> ())
+    function widgets.applyButtonClick(_thisWidget: Types.Widget, thisInstance: GuiButton, callback: () -> ())
         thisInstance.MouseButton1Click:Connect(function()
-            if thisWidget.Disabled then
-                return
-            end
             callback()
         end)
     end
 
-    function widgets.applyButtonDown(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (x: number, y: number) -> ())
+    function widgets.applyButtonDown(_thisWidget: Types.Widget, thisInstance: GuiButton, callback: (x: number, y: number) -> ())
         thisInstance.MouseButton1Down:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
             callback(...)
         end)
     end
 
-    function widgets.applyMouseEnter(thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
+    function widgets.applyMouseEnter(_thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
         thisInstance.MouseEnter:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
-            callback()
-        end)
-    end
-
-    function widgets.applyMouseLeave(thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
-        thisInstance.MouseLeave:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
-            callback()
-        end)
-    end
-
-    function widgets.applyInputBegan(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
-        thisInstance.InputBegan:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
             callback(...)
         end)
     end
 
-    function widgets.applyInputEnded(thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
+    function widgets.applyMouseLeave(_thisWidget: Types.Widget, thisInstance: GuiObject, callback: () -> ())
+        thisInstance.MouseLeave:Connect(function(...)
+            callback(...)
+        end)
+    end
+
+    function widgets.applyInputBegan(_thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
+        thisInstance.InputBegan:Connect(function(...)
+            callback(...)
+        end)
+    end
+
+    function widgets.applyInputEnded(_thisWidget: Types.Widget, thisInstance: GuiButton, callback: (input: InputObject) -> ())
         thisInstance.InputEnded:Connect(function(...)
-            if thisWidget.Disabled then
-                return
-            end
             callback(...)
         end)
     end
@@ -456,9 +463,6 @@ return function(Iris: Types.Internal)
                     thisWidget.lastRightClickedTick = -1
 
                     clickedGuiObject.MouseButton2Click:Connect(function()
-                        if thisWidget.Disabled then
-                            return
-                        end
                         thisWidget.lastRightClickedTick = Iris._cycleTick + 1
                     end)
                 end,
@@ -525,6 +529,7 @@ return function(Iris: Types.Internal)
     require(script.Button)(Iris, widgets)
     require(script.Checkbox)(Iris, widgets)
     require(script.RadioButton)(Iris, widgets)
+    require(script.Image)(Iris, widgets)
 
     require(script.Tree)(Iris, widgets)
 

@@ -1,4 +1,5 @@
-import { Hovered, OpenEvents, WidgetArguments, WidgetEvent, WidgetEvents, WidgetState } from ".";
+import { Hovered, OpenEvents, WidgetArguments, WidgetEvents, WidgetState } from "./creation/utils";
+import { EventApi } from "./creation/widgetClass";
 
 type WindowArguments = [
 	Title: string,
@@ -14,8 +15,8 @@ type WindowArguments = [
 ];
 
 type WindowEvents = {
-	collapsed: WidgetEvent;
-	uncollapsed: WidgetEvent;
+	collapsed: EventApi;
+	uncollapsed: EventApi;
 } & (Hovered & OpenEvents);
 
 type WindowState = {
@@ -27,5 +28,5 @@ type WindowState = {
 };
 type TooltipArguments = [Text: string];
 
-export type WindowCreation = WidgetArguments<WindowArguments> & WidgetState<WindowState> & WidgetEvents<WindowEvents>;
-export type TooltipCreation = WidgetArguments<TooltipArguments>;
+export type WindowDeclaration = WidgetArguments<WindowArguments> & WidgetState<WindowState> & WidgetEvents<WindowEvents>;
+export type TooltipDeclaration = WidgetArguments<TooltipArguments>;

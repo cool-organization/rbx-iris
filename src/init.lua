@@ -5,7 +5,20 @@ local Types = require(script.Types)
     @class Iris
 
     Iris; contains the all user-facing functions and properties.
-    A set of internal functions can be found in `Iris.Internal` (only use unless you understand).
+    A set of internal functions can be found in `Iris.Internal` (only use if you understand).
+
+    In its simplest form, users may start Iris by using
+    ```lua
+    Iris.Init()
+
+    Iris:Connect(function()
+        Iris.Window({"My First Window!"})
+            Iris.Text({"Hello, World"})
+            Iris.Button({"Save"})
+            Iris.InputNum({"Input"})
+        Iris.End()
+    end)
+    ```
 ]=]
 local Iris = {} :: Types.Iris
 
@@ -43,16 +56,18 @@ Iris.Args = {}
 Iris.Events = {}
 
 --[=[
-    @function Init
     @within Iris
-    @param parentInstance Instance | nil -- instance which Iris will place UI in. defaults to [PlayerGui] if unspecified
-    @param eventConnection RBXScriptSignal | () -> {} | nil
+    @param parentInstance -- where Iris will place widgets UIs under, defaulting to [PlayerGui]
+    @param eventConnection -- the event to determine an Iris cycle, defaulting to [Heartbeat]
     @return Iris
 
     Initializes Iris and begins rendering. May only be called once.
-    By default, Iris will create its widgets under the PlayerGui and use the Heartbeat event.
+
+    See [Iris.Shutdown] to stop Iris, or [Iris.Disabled] to temporarily disable Iris.
+
+    Once initialized, [Iris.Connect] can be used to create a widget.
 ]=]
-function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> ())?, config: { [string]: any }?): Types.Iris
+function Iris.Init(parentInstance: BasePlayerGui?, eventConnection: (RBXScriptSignal | () -> ())?): Types.Iris
     assert(Internal._started == false, "Iris.Init can only be called once.")
     assert(Internal._shutdown == false, "Iris.Init cannot be called once shutdown.")
 
@@ -93,7 +108,8 @@ end
 
 --[=[
     @within Iris
-    @method Shutdown
+
+    Shuts Iris down. This can only be called once, and Iris cannot be started once shut down.
 ]=]
 function Iris.Shutdown()
     Internal._started = false
@@ -122,24 +138,32 @@ end
 
 --[=[
     @within Iris
-    @method Connect
-    @param callback function -- the callback containg the Iris code.
+    @param callback -- the callback containg the Iris code
     
-    Allows users to connect a function which will execute every Iris cycle, (cycle is determined by the callback or event passed to Iris.Init or default to Heartbeat).
+    Connects a function which will execute every Iris cycle. [Iris.Init] must be called before connecting.
+
+    A cycle is determined by the `eventConnection` passed to [Iris.Init] (default to [RunService.Heartbeat]).
+
     Multiple callbacks can be added to Iris from many different scripts or modules.
 ]=]
-function Iris:Connect(callback: () -> ()) -- this uses method syntax for no reason.
+function Iris:Connect(callback: () -> ()): () -> () -- this uses method syntax for no reason.
     if Internal._started == false then
         warn("Iris:Connect() was called before calling Iris.Init(), the connected function will never run")
     end
-    table.insert(Internal._connectedFunctions, callback)
+    local connectionIndex: number = #Internal._connectedFunctions + 1
+    Internal._connectedFunctions[connectionIndex] = callback
+    return function()
+        Internal._connectedFunctions[connectionIndex] = nil
+    end
 end
 
 --[=[
-    @function Append
     @within Iris
+    @param userInstance -- the Roblox [Instance] to insert into Iris
 
-    Allows the caller to insert any Roblox Instance into Iris. The parent can either be determined by the `_config.Parent`
+    Inserts any Roblox [Instance] into Iris.
+    
+    The parent of the inserted instance can either be determined by the `_config.Parent`
     property or by the current parent widget from the stack.
 ]=]
 function Iris.Append(userInstance: GuiObject)
@@ -154,26 +178,36 @@ function Iris.Append(userInstance: GuiObject)
 end
 
 --[=[
-    @function End
     @within Iris
 
-    This function marks the end of any widgets which contain children. For example:
+    Marks the end of any widgets which contain children. For example:
     ```lua
     -- Widgets placed here **will not** be inside the tree
+    Iris.Text({"Above and outside the tree"})
+
+    -- A Tree widget can contain children.
+    -- We must therefore remember to call `Iris.End()` 
     Iris.Tree({"My First Tree"})
         -- Widgets placed here **will** be inside the tree
+        Iris.Text({"Tree item 1"})
+        Iris.Text({"Tree item 2"})
     Iris.End()
+
     -- Widgets placed here **will not** be inside the tree
+    Iris.Text({"Below and outside the tree"})
     ```
     :::caution Caution: Error
     Seeing the error `Callback has too few calls to Iris.End()` or `Callback has too many calls to Iris.End()`?
-    Using the wrong amount of `Iris.End()` calls in your code will lead to an error. Each widget called which might have children should be paired with a call to `Iris.End()`, **Even if the Widget doesnt currently have any children**.
+    Using the wrong amount of `Iris.End()` calls in your code will lead to an error.
+    
+    Each widget called which might have children should be paired with a call to `Iris.End()`, **even if the Widget doesnt currently have any children**.
     :::
 ]=]
 function Iris.End()
     if Internal._stackIndex == 1 then
         error("Callback has too many calls to Iris.End()", 2)
     end
+
     Internal._IDStack[Internal._stackIndex] = nil
     Internal._stackIndex -= 1
 end
@@ -185,7 +219,6 @@ end
 ]]
 
 --[=[
-    @function ForceRefresh
     @within Iris
 
     Destroys and regenerates all instances used by Iris. Useful if you want to propogate state changes.
@@ -199,14 +232,19 @@ function Iris.ForceRefresh()
 end
 
 --[=[
-    @function UpdateGlobalConfig
     @within Iris
-    @param deltaStyle table -- a table containing the changes in style ex: `{ItemWidth = UDim.new(0, 100)}`
+    @param deltaStyle -- a table containing the changes in style ex: `{ItemWidth = UDim.new(0, 100)}`
 
-    Allows callers to customize the config which **every** widget will inherit from.
-    It can be used along with Iris.TemplateConfig to easily swap styles, ex: ```Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight) -- use light theme```
+    Customizes the configuration which **every** widget will inherit from.
+
+    It can be used along with [Iris.TemplateConfig] to easily swap styles, for example:
+    ```lua
+    Iris.UpdateGlobalConfig(Iris.TemplateConfig.colorLight) -- use light theme
+    ```
     :::caution Caution: Performance
-    this function internally calls [Iris.ForceRefresh] so that style changes are propogated, it may cause **performance issues** when used with many widgets.
+    This function internally calls [Iris.ForceRefresh] so that style changes are propogated.
+
+    As such, it may cause **performance issues** when used with many widgets.
     In **no** case should it be called every frame.
     :::
 ]=]
@@ -218,17 +256,20 @@ function Iris.UpdateGlobalConfig(deltaStyle: { [string]: any })
 end
 
 --[=[
-    @function PushConfig
     @within Iris
     @param deltaStyle table -- a table containing the changes in style ex: `{ItemWidth = UDim.new(0, 100)}`
 
-    Allows callers to cascade a style, meaning that styles may be locally and hierarchically applied.
-    Each call to Iris.PushConfig must be paired with a call to [Iris.PopConfig].
-    For example:
+    Allows cascading of a style by allowing styles to be locally and hierarchically applied.
+
+    Each call to Iris.PushConfig must be paired with a call to [Iris.PopConfig], for example:
     ```lua
+    Iris.Text({"boring text"})
+
     Iris.PushConfig({TextColor = Color3.fromRGB(128, 0, 256)})
         Iris.Text({"Colored Text!"})
     Iris.PopConfig()
+
+    Iris.Text({"boring text"})
     ```
 ]=]
 function Iris.PushConfig(deltaStyle: { [string]: any })
@@ -250,11 +291,11 @@ function Iris.PushConfig(deltaStyle: { [string]: any })
 end
 
 --[=[
-    @function PopConfig
     @within Iris
 
-    Ends a PushConfig style.
-    Each call to [Iris.PushConfig] must be paired with a call to Iris.PopConfig.
+    Ends a [Iris.PushConfig] style.
+
+    Each call to [Iris.PopConfig] should match a call to [Iris.PushConfig].
 ]=]
 function Iris.PopConfig()
     Internal._localRefreshActive = false
@@ -280,9 +321,8 @@ Internal._globalRefreshRequested = false -- UpdatingGlobalConfig changes this to
 ]]
 
 --[=[
-    @function PushId
     @within Iris
-    @param id Types.ID -- custom id.
+    @param id -- custom id
 
     Sets the id discriminator for the next widgets. Use [Iris.PopId] to remove it.
 ]=]
@@ -293,7 +333,6 @@ function Iris.PushId(id: Types.ID)
 end
 
 --[=[
-    @function PopId
     @within Iris
 
     Removes the id discriminator set by [Iris.PushId].
@@ -303,9 +342,8 @@ function Iris.PopId()
 end
 
 --[=[
-    @function SetNextWidgetId
     @within Iris
-    @param id Types.ID -- custom id.
+    @param id -- custom id.
 
     Sets the id for the next widget. Useful for using [Iris.Append] on the same widget.
     ```lua
@@ -335,11 +373,10 @@ end
 ]]
 
 --[=[
-    @function State
     @within Iris
-    @param initialValue any -- The initial value for the state
+    @param initialValue -- the initial value for the state
 
-    Constructs a new state object, subsequent ID calls will return the same object
+    Constructs a new [State] object. Subsequent ID calls will return the same object.
     :::info
     Iris.State allows you to create "references" to the same value while inside your UI drawing loop.
     For example:
