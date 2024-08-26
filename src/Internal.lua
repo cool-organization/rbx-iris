@@ -1,3 +1,5 @@
+local HttpService: HttpService = game:GetService("HttpService")
+
 local Types = require(script.Parent.Types)
 
 return function(Iris: Types.Iris): Types.Internal
@@ -14,7 +16,7 @@ return function(Iris: Types.Iris): Types.Internal
         ---------------------------------
     ]]
 
-    Internal._version = [[ 2.2.0 ]]
+    Internal._version = [[ 2.3.1 ]]
 
     Internal._started = false -- has Iris.connect been called yet
     Internal._shutdown = false
@@ -26,7 +28,6 @@ return function(Iris: Types.Iris): Types.Internal
 
     -- Widgets & Instances
     Internal._widgets = {}
-    Internal._widgetCount = 0 -- only used to compute ZIndex, resets to 0 for every cycle
     Internal._stackIndex = 1 -- Points to the index that IDStack is currently in, when computing cycle
     Internal._rootInstance = nil
     Internal._rootWidget = {
@@ -34,6 +35,7 @@ return function(Iris: Types.Iris): Types.Internal
         type = "Root",
         Instance = Internal._rootInstance,
         ZIndex = 0,
+        ZOffset = 0,
     }
     Internal._lastWidget = Internal._rootWidget -- widget which was most recently rendered
 
@@ -109,7 +111,7 @@ return function(Iris: Types.Iris): Types.Internal
         ```
 
         :::caution
-        Never call ':set()` on a state when inside the the `:onChange()` callback of the same state. This will cause a continous callback.
+        Never call `:set()` on a state when inside the `:onChange()` callback of the same state. This will cause a continous callback.
 
         Never chain states together so that each state changes the value of another state in a cyclic nature. This will cause a continous callback.
         :::
@@ -156,8 +158,12 @@ return function(Iris: Types.Iris): Types.Internal
         
         Allows the caller to connect a callback which is called when the states value is changed.
     ]=]
-    function StateClass:onChange(callback: (newValue: any) -> ())
-        table.insert(self.ConnectedFunctions, callback)
+    function StateClass:onChange(callback: (newValue: any) -> ()): () -> ()
+        local connectionIndex: number = #self.ConnectedFunctions + 1
+        self.ConnectedFunctions[connectionIndex] = callback
+        return function()
+            self.ConnectedFunctions[connectionIndex] = nil
+        end
     end
 
     Internal.StateClass = StateClass
@@ -186,8 +192,9 @@ return function(Iris: Types.Iris): Types.Internal
         end
 
         for _, widget: Types.Widget in Internal._lastVDOM do
-            if widget.lastCycleTick ~= Internal._cycleTick then
+            if widget.lastCycleTick ~= Internal._cycleTick and (widget.lastCycleTick ~= -1) then
                 -- a widget which used to be rendered was not called last frame, so we discard it.
+                -- if the cycle tick is -1 we have already discarded it.
                 Internal._DiscardWidget(widget)
             end
         end
@@ -220,7 +227,6 @@ return function(Iris: Types.Iris): Types.Internal
 
         -- update counters
         Internal._cycleTick += 1
-        Internal._widgetCount = 0
         table.clear(Internal._usedIDs)
 
         -- if Internal.parentInstance:IsA("GuiBase2d") and math.min(Internal.parentInstance.AbsoluteSize.X, Internal.parentInstance.AbsoluteSize.Y) < 100 then
@@ -261,7 +267,7 @@ return function(Iris: Types.Iris): Types.Internal
         end
 
         if Internal._stackIndex ~= 1 then
-            -- has to be larger than 1 because of the check that it isint below 1 in Iris.End
+            -- has to be larger than 1 because of the check that it isnt below 1 in Iris.End
             Internal._stackIndex = 1
             error("Callback has too few calls to Iris.End()", 0)
         end
@@ -401,13 +407,11 @@ return function(Iris: Types.Iris): Types.Internal
         find the previous frame widget if it exists. If no widget exists, a new one is created.
     ]=]
     function Internal._Insert(widgetType: string, args: Types.WidgetArguments?, states: Types.WidgetStates?): Types.Widget
-        local thisWidget: Types.Widget
         local ID: Types.ID = Internal._getID(3)
         --debug.profilebegin(ID)
 
         -- fetch the widget class which contains all the functions for the widget.
         local thisWidgetClass: Types.WidgetClass = Internal._widgets[widgetType]
-        Internal._widgetCount += 1
 
         if Internal._VDOM[ID] then
             -- widget already created once this frame, so we can append to it.
@@ -428,18 +432,31 @@ return function(Iris: Types.Iris): Types.Internal
         -- prevents tampering with the arguments which are used to check for changes.
         table.freeze(arguments)
 
-        if Internal._lastVDOM[ID] and widgetType == Internal._lastVDOM[ID].type then
+        local lastWidget: Types.Widget? = Internal._lastVDOM[ID]
+        if lastWidget and widgetType == lastWidget.type then
             -- found a matching widget from last frame.
             if Internal._localRefreshActive then
                 -- we are redrawing every widget.
-                Internal._DiscardWidget(Internal._lastVDOM[ID])
-            else
-                thisWidget = Internal._lastVDOM[ID]
+                Internal._DiscardWidget(lastWidget)
+                lastWidget = nil
             end
         end
-        if thisWidget == nil then
-            -- didnt find a match, generate a new widget.
-            thisWidget = Internal._GenNewWidget(widgetType, arguments, states, ID)
+        local thisWidget: Types.Widget = if lastWidget == nil then Internal._GenNewWidget(widgetType, arguments, states, ID) else lastWidget
+
+        local parentWidget: Types.Widget = thisWidget.parentWidget
+
+        if thisWidget.type ~= "Window" and thisWidget.type ~= "Tooltip" then
+            if thisWidget.ZIndex ~= parentWidget.ZOffset then
+                parentWidget.ZUpdate = true
+            end
+
+            if parentWidget.ZUpdate then
+                thisWidget.ZIndex = parentWidget.ZOffset
+                if thisWidget.Instance then
+                    thisWidget.Instance.ZIndex = thisWidget.ZIndex
+                    thisWidget.Instance.LayoutOrder = thisWidget.ZIndex
+                end
+            end
         end
 
         if Internal._deepCompare(thisWidget.providedArguments, arguments) == false then
@@ -452,10 +469,12 @@ return function(Iris: Types.Iris): Types.Internal
         end
 
         thisWidget.lastCycleTick = Internal._cycleTick
-        thisWidget.Disabled = Iris._config.DisableWidget
+        parentWidget.ZOffset += 1
 
         if thisWidgetClass.hasChildren then
             -- a parent widget, so we increase our depth.
+            thisWidget.ZOffset = 0
+            thisWidget.ZUpdate = false
             Internal._stackIndex += 1
             Internal._IDStack[Internal._stackIndex] = thisWidget.ID
         end
@@ -482,6 +501,7 @@ return function(Iris: Types.Iris): Types.Internal
     ]=]
     function Internal._GenNewWidget(widgetType: string, arguments: Types.Arguments, states: Types.WidgetStates?, ID: Types.ID): Types.Widget
         local parentId: Types.ID = Internal._IDStack[Internal._stackIndex]
+        local parentWidget: Types.Widget = Internal._VDOM[parentId]
         local thisWidgetClass: Types.WidgetClass = Internal._widgets[widgetType]
 
         -- widgets are just tables with properties.
@@ -490,14 +510,22 @@ return function(Iris: Types.Iris): Types.Internal
 
         thisWidget.ID = ID
         thisWidget.type = widgetType
-        thisWidget.parentWidget = Internal._VDOM[parentId]
+        thisWidget.parentWidget = parentWidget
         thisWidget.trackedEvents = {}
+        thisWidget.UID = HttpService:GenerateGUID(false):sub(0, 8)
 
         -- widgets have lots of space to ensure they are always visible.
-        thisWidget.ZIndex = thisWidget.parentWidget.ZIndex + (Internal._widgetCount * 0x40) + Internal._config.ZIndexOffset
+        thisWidget.ZIndex = parentWidget.ZOffset
 
         thisWidget.Instance = thisWidgetClass.Generate(thisWidget)
-        thisWidget.Instance.Parent = if Internal._config.Parent then Internal._config.Parent else Internal._widgets[thisWidget.parentWidget.type].ChildAdded(thisWidget.parentWidget, thisWidget)
+        -- tooltips set their parent in the generation method, so we need to udpate it here
+        parentWidget = thisWidget.parentWidget
+
+        if Internal._config.Parent then
+            thisWidget.Instance.Parent = Internal._config.Parent
+        else
+            thisWidget.Instance.Parent = Internal._widgets[parentWidget.type].ChildAdded(parentWidget, thisWidget)
+        end
 
         -- we can modify the arguments table, but keep a frozen copy to compare for user-end changes.
         thisWidget.providedArguments = arguments
@@ -586,6 +614,9 @@ return function(Iris: Types.Iris): Types.Internal
 
         -- using the widget class discard function.
         Internal._widgets[widgetToDiscard.type].Discard(widgetToDiscard)
+
+        -- mark as discarded
+        widgetToDiscard.lastCycleTick = -1
     end
 
     --[=[
@@ -793,13 +824,12 @@ return function(Iris: Types.Iris): Types.Internal
         Performs a deep copy of a table so that neither table contains a shared reference.
     ]=]
     function Internal._deepCopy(t: {}): {}
-        local copy: {} = {}
+        local copy: {} = table.clone(t)
 
         for k: any, v: any in pairs(t) do
             if type(v) == "table" then
-                v = Internal._deepCopy(v)
+                copy[k] = Internal._deepCopy(v)
             end
-            copy[k] = v
         end
 
         return copy

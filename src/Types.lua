@@ -1,10 +1,17 @@
 export type ID = string
 
+-- Arguments, States & Events
+
+export type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 | Rect | { number }
+export type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Rect" | "Enum" | "" | string
+
 export type Argument = any
 export type Arguments = {
     [string]: Argument,
     Text: string,
     TextHint: string,
+    ReadOnly: boolean,
+    MultiLine: boolean,
     Wrapped: boolean,
     Color: Color3,
     RichText: boolean,
@@ -21,6 +28,14 @@ export type Arguments = {
     Width: number,
     VerticalAlignment: Enum.VerticalAlignment,
     Index: any,
+    Image: string,
+    Size: UDim2,
+    Rect: Rect,
+    ScaleType: Enum.ScaleType,
+    TileSize: UDim2,
+    SliceCenter: Rect,
+    SliceScale: number,
+    ResampleMode: Enum.ResamplerMode,
 
     SpanAvailWidth: boolean,
     NoIdent: boolean,
@@ -51,12 +66,12 @@ export type Arguments = {
 
 export type State = {
     value: any,
-    ConnectedWidgets: { [ID]: string },
+    ConnectedWidgets: { [ID]: Widget },
     ConnectedFunctions: { (any) -> () },
 
     get: (self: State) -> any,
     set: (self: State, newValue: any) -> (),
-    onChange: (self: State, funcToConnect: (any) -> ()) -> (),
+    onChange: (self: State, funcToConnect: (any) -> ()) -> () -> (),
 }
 
 export type States = {
@@ -83,10 +98,7 @@ export type Event = {
 }
 export type Events = { [string]: Event }
 
-type EventAPI = () -> boolean
-
-export type InputDataType = number | Vector2 | Vector3 | UDim | UDim2 | Color3 | Rect | { number }
-export type InputDataTypes = "Num" | "Vector2" | "Vector3" | "UDim" | "UDim2" | "Color3" | "Color4" | "Rect" | "Enum" | "" | string
+-- Widgets
 
 export type WidgetArguments = { [number]: Argument }
 export type WidgetStates = {
@@ -107,26 +119,32 @@ export type WidgetStates = {
     [string]: State,
 }
 
+type EventAPI = () -> boolean
 export type Widget = {
     ID: ID,
     type: string,
-    state: States,
     lastCycleTick: number,
     trackedEvents: {},
-
     parentWidget: Widget,
-    Instance: GuiObject,
-    ChildContainer: GuiObject,
-    Disabled: boolean,
+    UID: string,
+
+    state: States,
     arguments: Arguments,
     providedArguments: Arguments,
+
+    Instance: GuiObject,
     ZIndex: number,
 
-    usesScreenGUI: boolean,
-    ButtonColors: { [string]: Color3 | number },
-    ComboChildrenHeight: number,
+    -- Parents
+    ChildContainer: GuiObject,
+    ZOffset: number,
+    ZUpdate: boolean,
 
-    -- Table properties
+    usesScreenGUI: boolean,
+
+    -- Combo & Table properties
+    ButtonColors: { [string]: Color3 | number },
+
     RowColumnIndex: number,
     InitialNumColumns: number,
     ColumnInstances: { Frame },
@@ -200,162 +218,7 @@ export type WidgetClass = {
     ChildDiscarded: (thisWidget: Widget, thisChild: Widget) -> (),
 }
 
-export type WidgetUtility = {
-    GuiService: GuiService,
-    RunService: RunService,
-    TextService: TextService,
-    UserInputService: UserInputService,
-    ContextActionService: ContextActionService,
-
-    getTime: () -> number,
-    getMouseLocation: () -> Vector2,
-
-    ICONS: {
-        RIGHT_POINTING_TRIANGLE: string,
-        DOWN_POINTING_TRIANGLE: string,
-        MULTIPLICATION_SIGN: string,
-        BOTTOM_RIGHT_CORNER: string,
-        CHECK_MARK: string,
-        ALPHA_BACKGROUND_TEXTURE: string,
-    },
-
-    GuiInset: Vector2,
-
-    findBestWindowPosForPopup: (refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2) -> Vector2,
-    getScreenSizeForWindow: (thisWidget: Widget) -> Vector2,
-    isPosInsideRect: (pos: Vector2, rectMin: Vector2, rectMax: Vector2) -> boolean,
-    extend: (superClass: WidgetClass, { [any]: any }) -> WidgetClass,
-    discardState: (thisWidget: Widget) -> (),
-
-    UIPadding: (Parent: GuiObject, PxPadding: Vector2) -> UIPadding,
-    UIListLayout: (Parent: GuiObject, FillDirection: Enum.FillDirection, Padding: UDim) -> UIListLayout,
-    UIStroke: (Parent: GuiObject, Thickness: number, Color: Color3, Transparency: number) -> UIStroke,
-    UICorner: (Parent: GuiObject, PxRounding: number?) -> UICorner,
-    UISizeConstraint: (Parent: GuiObject, MinSize: Vector2?, MaxSize: Vector2?) -> UISizeConstraint,
-    UIReference: (Parent: GuiObject, Child: GuiObject, Name: string) -> ObjectValue,
-
-    calculateTextSize: (text: string, width: number?) -> Vector2,
-    applyTextStyle: (thisInstance: TextLabel | TextButton | TextBox) -> (),
-    applyInteractionHighlights: (thisWidget: Widget, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any }) -> (),
-    applyInteractionHighlightsWithMultiHighlightee: (thisWidget: Widget, Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } }) -> (),
-    applyTextInteractionHighlights: (thisWidget: Widget, Button: GuiButton, Highlightee: TextLabel | TextButton | TextBox, Colors: { [string]: any }) -> (),
-    applyFrameStyle: (thisInstance: GuiObject, forceNoPadding: boolean?, doubleyNoPadding: boolean?) -> (),
-
-    applyButtonClick: (thisWidget: Widget, thisInstance: GuiButton, callback: () -> ()) -> (),
-    applyButtonDown: (thisWidget: Widget, thisInstance: GuiButton, callback: (x: number, y: number) -> ()) -> (),
-    applyMouseEnter: (thisWidget: Widget, thisInstance: GuiObject, callback: () -> ()) -> (),
-    applyMouseLeave: (thisWidget: Widget, thisInstance: GuiObject, callback: () -> ()) -> (),
-    applyInputBegan: (thisWidget: Widget, thisInstance: GuiObject, callback: (input: InputObject) -> ()) -> (),
-    applyInputEnded: (thisWidget: Widget, thisInstance: GuiObject, callback: (input: InputObject) -> ()) -> (),
-
-    registerEvent: (event: string, callback: (...any) -> ()) -> (),
-
-    EVENTS: {
-        hover: (pathToHovered: (thisWidget: Widget) -> GuiObject) -> Event,
-        click: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
-        rightClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
-        doubleClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
-        ctrlClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
-    },
-
-    abstractButton: WidgetClass,
-}
-
-export type Internal = {
-    --[[
-        --------------
-          PROPERTIES
-        --------------
-    ]]
-    _version: string,
-    _started: boolean,
-    _shutdown: boolean,
-    _cycleTick: number,
-    _eventConnection: RBXScriptConnection?,
-
-    -- Refresh
-    _globalRefreshRequested: boolean,
-    _localRefreshActive: boolean,
-
-    -- Widgets & Instances
-    _widgets: { [string]: WidgetClass },
-    _widgetCount: number,
-    _stackIndex: number,
-    _rootInstance: GuiObject?,
-    _rootWidget: Widget,
-    _lastWidget: Widget,
-    SelectionImageObject: Frame,
-    parentInstance: BasePlayerGui,
-    _utility: WidgetUtility,
-
-    -- Config
-    _rootConfig: Config,
-    _config: Config,
-
-    -- ID
-    _IDStack: { ID },
-    _usedIDs: { [ID]: number },
-    _pushedId: ID?,
-    _nextWidgetId: ID?,
-
-    -- VDOM
-    _lastVDOM: { [ID]: Widget },
-    _VDOM: { [ID]: Widget },
-
-    -- State
-    _states: { [ID]: State },
-
-    -- Callback
-    _postCycleCallbacks: { () -> () },
-    _connectedFunctions: { () -> () },
-    _connections: { RBXScriptConnection },
-    _initFunctions: { () -> () },
-    _cycleCoroutine: thread?,
-
-    --[[
-        ---------
-          STATE
-        ---------
-    ]]
-
-    StateClass: {
-        __index: any,
-
-        get: (self: State) -> any,
-        set: (self: State, newValue: any) -> any,
-        onChange: (self: State, callback: (newValue: any) -> ()) -> (),
-    },
-
-    --[[
-        -------------
-          FUNCTIONS
-        -------------
-    ]]
-    _cycle: () -> (),
-    _NoOp: () -> (),
-
-    -- Widget
-    WidgetConstructor: (type: string, widgetClass: WidgetClass) -> (),
-    _Insert: (widgetType: string, arguments: WidgetArguments?, states: WidgetStates?) -> Widget,
-    _GenNewWidget: (widgetType: string, arguments: Arguments, states: WidgetStates?, ID: ID) -> Widget,
-    _ContinueWidget: (ID: ID, widgetType: string) -> Widget,
-    _DiscardWidget: (widgetToDiscard: Widget) -> (),
-
-    _widgetState: (thisWidget: Widget, stateName: string, initialValue: any) -> State,
-    _EventCall: (thisWidget: Widget, eventName: string) -> boolean,
-    _GetParentWidget: () -> Widget,
-    SetFocusedWindow: (thisWidget: Widget?) -> (),
-
-    -- Generate
-    _generateEmptyVDOM: () -> { [ID]: Widget },
-    _generateRootInstance: () -> (),
-    _generateSelectionImageObject: () -> (),
-
-    -- Utility
-    _getID: (levelsToIgnore: number) -> ID,
-    _deepCompare: (t1: {}, t2: {}) -> boolean,
-    _deepCopy: (t: {}) -> {},
-}
+-- Iris
 
 export type Iris = {
     --[[
@@ -435,6 +298,9 @@ export type Iris = {
 
     ProgressBar: (arguments: WidgetArguments, states: WidgetStates?) -> Widget,
 
+    Image: (arguments: WidgetArguments) -> Widget,
+    ImageButton: (arguments: WidgetArguments) -> Widget,
+
     -- Table Widget Api
     Table: (arguments: WidgetArguments) -> Widget,
     NextColumn: () -> (),
@@ -459,7 +325,7 @@ export type Iris = {
 
     Init: (playerInstance: BasePlayerGui?, eventConnection: (RBXScriptConnection | () -> ())?) -> Iris,
     Shutdown: () -> (),
-    Connect: (self: Iris, callback: () -> ()) -> (),
+    Connect: (self: Iris, callback: () -> ()) -> () -> (),
     Append: (userInstance: GuiObject) -> (),
     ForceRefresh: () -> (),
 
@@ -492,6 +358,165 @@ export type Iris = {
     ShowDemoWindow: () -> Widget,
 }
 
+export type Internal = {
+    --[[
+        --------------
+          PROPERTIES
+        --------------
+    ]]
+    _version: string,
+    _started: boolean,
+    _shutdown: boolean,
+    _cycleTick: number,
+    _eventConnection: RBXScriptConnection?,
+
+    -- Refresh
+    _globalRefreshRequested: boolean,
+    _localRefreshActive: boolean,
+
+    -- Widgets & Instances
+    _widgets: { [string]: WidgetClass },
+    _stackIndex: number,
+    _rootInstance: GuiObject?,
+    _rootWidget: Widget,
+    _lastWidget: Widget,
+    SelectionImageObject: Frame,
+    parentInstance: BasePlayerGui,
+    _utility: WidgetUtility,
+
+    -- Config
+    _rootConfig: Config,
+    _config: Config,
+
+    -- ID
+    _IDStack: { ID },
+    _usedIDs: { [ID]: number },
+    _pushedId: ID?,
+    _nextWidgetId: ID?,
+
+    -- VDOM
+    _lastVDOM: { [ID]: Widget },
+    _VDOM: { [ID]: Widget },
+
+    -- State
+    _states: { [ID]: State },
+
+    -- Callback
+    _postCycleCallbacks: { () -> () },
+    _connectedFunctions: { () -> () },
+    _connections: { RBXScriptConnection },
+    _initFunctions: { () -> () },
+    _cycleCoroutine: thread?,
+
+    --[[
+        ---------
+          STATE
+        ---------
+    ]]
+
+    StateClass: {
+        __index: any,
+
+        get: (self: State) -> any,
+        set: (self: State, newValue: any) -> any,
+        onChange: (self: State, callback: (newValue: any) -> ()) -> (),
+    },
+
+    --[[
+        -------------
+          FUNCTIONS
+        -------------
+    ]]
+    _cycle: () -> (),
+    _NoOp: () -> (),
+
+    -- Widget
+    WidgetConstructor: (type: string, widgetClass: WidgetClass) -> (),
+    _Insert: (widgetType: string, arguments: WidgetArguments?, states: WidgetStates?) -> Widget,
+    _GenNewWidget: (widgetType: string, arguments: Arguments, states: WidgetStates?, ID: ID) -> Widget,
+    _ContinueWidget: (ID: ID, widgetType: string) -> Widget,
+    _DiscardWidget: (widgetToDiscard: Widget) -> (),
+
+    _widgetState: (thisWidget: Widget, stateName: string, initialValue: any) -> State,
+    _EventCall: (thisWidget: Widget, eventName: string) -> boolean,
+    _GetParentWidget: () -> Widget,
+    SetFocusedWindow: (thisWidget: Widget?) -> (),
+
+    -- Generate
+    _generateEmptyVDOM: () -> { [ID]: Widget },
+    _generateRootInstance: () -> (),
+    _generateSelectionImageObject: () -> (),
+
+    -- Utility
+    _getID: (levelsToIgnore: number) -> ID,
+    _deepCompare: (t1: {}, t2: {}) -> boolean,
+    _deepCopy: (t: {}) -> {},
+}
+
+export type WidgetUtility = {
+    GuiService: GuiService,
+    RunService: RunService,
+    TextService: TextService,
+    UserInputService: UserInputService,
+    ContextActionService: ContextActionService,
+
+    getTime: () -> number,
+    getMouseLocation: () -> Vector2,
+
+    ICONS: {
+        RIGHT_POINTING_TRIANGLE: string,
+        DOWN_POINTING_TRIANGLE: string,
+        MULTIPLICATION_SIGN: string,
+        BOTTOM_RIGHT_CORNER: string,
+        CHECK_MARK: string,
+        ALPHA_BACKGROUND_TEXTURE: string,
+        UNKNOWN_TEXTURE: string,
+    },
+
+    GuiOffset: Vector2,
+    MouseOffset: Vector2,
+
+    findBestWindowPosForPopup: (refPos: Vector2, size: Vector2, outerMin: Vector2, outerMax: Vector2) -> Vector2,
+    getScreenSizeForWindow: (thisWidget: Widget) -> Vector2,
+    isPosInsideRect: (pos: Vector2, rectMin: Vector2, rectMax: Vector2) -> boolean,
+    extend: (superClass: WidgetClass, { [any]: any }) -> WidgetClass,
+    discardState: (thisWidget: Widget) -> (),
+
+    UIPadding: (Parent: GuiObject, PxPadding: Vector2) -> UIPadding,
+    UIListLayout: (Parent: GuiObject, FillDirection: Enum.FillDirection, Padding: UDim) -> UIListLayout,
+    UIStroke: (Parent: GuiObject, Thickness: number, Color: Color3, Transparency: number) -> UIStroke,
+    UICorner: (Parent: GuiObject, PxRounding: number?) -> UICorner,
+    UISizeConstraint: (Parent: GuiObject, MinSize: Vector2?, MaxSize: Vector2?) -> UISizeConstraint,
+    UIReference: (Parent: GuiObject, Child: GuiObject, Name: string) -> ObjectValue,
+
+    calculateTextSize: (text: string, width: number?) -> Vector2,
+    applyTextStyle: (thisInstance: TextLabel | TextButton | TextBox) -> (),
+    applyInteractionHighlights: (thisWidget: Widget, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any }) -> (),
+    applyInteractionHighlightsWithMultiHighlightee: (thisWidget: Widget, Button: GuiButton, Highlightees: { { GuiObject | { [string]: Color3 | number } } }) -> (),
+    applyImageInteractionHighlights: (thisWidget: Widget, Button: GuiButton, Highlightee: GuiObject, Colors: { [string]: any }) -> (),
+    applyTextInteractionHighlights: (thisWidget: Widget, Button: GuiButton, Highlightee: TextLabel | TextButton | TextBox, Colors: { [string]: any }) -> (),
+    applyFrameStyle: (thisInstance: GuiObject, noPadding: boolean?, noCorner: boolean?) -> (),
+
+    applyButtonClick: (thisWidget: Widget, thisInstance: GuiButton, callback: () -> ()) -> (),
+    applyButtonDown: (thisWidget: Widget, thisInstance: GuiButton, callback: (x: number, y: number) -> ()) -> (),
+    applyMouseEnter: (thisWidget: Widget, thisInstance: GuiObject, callback: () -> ()) -> (),
+    applyMouseLeave: (thisWidget: Widget, thisInstance: GuiObject, callback: () -> ()) -> (),
+    applyInputBegan: (thisWidget: Widget, thisInstance: GuiObject, callback: (input: InputObject) -> ()) -> (),
+    applyInputEnded: (thisWidget: Widget, thisInstance: GuiObject, callback: (input: InputObject) -> ()) -> (),
+
+    registerEvent: (event: string, callback: (...any) -> ()) -> (),
+
+    EVENTS: {
+        hover: (pathToHovered: (thisWidget: Widget) -> GuiObject) -> Event,
+        click: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
+        rightClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
+        doubleClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
+        ctrlClick: (pathToClicked: (thisWidget: Widget) -> GuiButton) -> Event,
+    },
+
+    abstractButton: WidgetClass,
+}
+
 export type Config = {
     TextColor: Color3,
     TextTransparency: number,
@@ -507,6 +532,8 @@ export type Config = {
     WindowBgTransparency: number,
     ScrollbarGrabColor: Color3,
     ScrollbarGrabTransparency: number,
+    PopupBgColor: Color3,
+    PopupBgTransparency: number,
 
     TitleBgColor: Color3,
     TitleBgTransparency: number,
@@ -531,6 +558,9 @@ export type Config = {
     ButtonHoveredTransparency: number,
     ButtonActiveColor: Color3,
     ButtonActiveTransparency: number,
+
+    ImageColor: Color3,
+    ImageTransparency: number,
 
     SliderGrabColor: Color3,
     SliderGrabTransparency: number,
@@ -580,6 +610,7 @@ export type Config = {
     -- Sizes
     ItemWidth: UDim,
     ContentWidth: UDim,
+    ContentHeight: UDim,
 
     WindowPadding: Vector2,
     WindowResizePadding: Vector2,
@@ -603,13 +634,13 @@ export type Config = {
     ScrollbarSize: number,
     GrabMinSize: number,
     SeparatorTextBorderSize: number,
+    ImageBorderSize: number,
 
     UseScreenGUIs: boolean,
     IgnoreGuiInset: boolean,
     Parent: BasePlayerGui,
     RichText: boolean,
     TextWrapped: boolean,
-    DisableWidget: boolean,
     DisplayOrderOffset: number,
     ZIndexOffset: number,
 

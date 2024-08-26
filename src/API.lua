@@ -24,6 +24,8 @@ return function(Iris: Types.Iris)
         Iris.End()
         ```
 
+        ![Example window](../assets/basicWindow.png)
+
         If you do not want the code inside a window to run unless it is open then you can use the following:
         ```lua
         local window = Iris.Window({ "Many Widgets Window" })
@@ -69,10 +71,10 @@ return function(Iris: Types.Iris)
             hovered: () -> boolean -- fires when the mouse hovers over any of the window.
         }
         States = {
-            size = State<Vector2>?,
+            size = State<Vector2>? = Vector2.new(400, 300),
             position = State<Vector2>?,
-            isUncollapsed = State<boolean>?,
-            isOpened = State<boolean>?,
+            isUncollapsed = State<boolean>? = true,
+            isOpened = State<boolean>? = true,
             scrollDistance = State<number>? -- vertical scroll distance, if too short.
         }
         ```
@@ -94,6 +96,12 @@ return function(Iris: Types.Iris)
         @tag Widget
 
         Displays a text label next to the cursor
+
+        ```lua
+        Iris.Tooltip({"My custom tooltip"})
+        ```
+
+        ![Basic tooltip example](../assets/basicTooltip.png)
         
         ```lua
         hasChildren = false
@@ -418,7 +426,9 @@ return function(Iris: Types.Iris)
         hasState = true
         Arguments = {
             Text: string? = "InputText",
-            TextHint: string? = "" -- a hint to display when the text box is empty.
+            TextHint: string? = "", -- a hint to display when the text box is empty.
+            ReadOnly: boolean? = false,
+            MultiLine: boolean? = false
         }
         Events = {
             textChanged: () -> boolean, -- whenever the textbox looses focus and a change was made.
@@ -542,6 +552,79 @@ return function(Iris: Types.Iris)
         ```
     ]=]
     Iris.RadioButton = wrapper("RadioButton")
+
+    --[[
+        ----------------------------------
+            [SECTION] Image Widget API
+        ----------------------------------
+    ]]
+
+    --[=[
+        @class Image
+        Image Widget API
+
+        Provides two widgets for Images and ImageButtons, which provide the same control as a an ImageLabel instance.
+    ]=]
+
+    --[=[
+        @prop Image Iris.Image
+        @within Image
+        @tag Widget
+
+        An image widget for displaying an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image and the rest of the ScaleType properties.
+        Some of the arguments are only used depending on the ScaleType property, such as TileSize or Slice which will be ignored.
+
+        ```lua
+        hasChildren = false
+        hasState = false
+        Arguments = {
+            Image: string, -- the texture asset id
+            Size: UDim2,
+            Rect: Rect? = Rect.new(), -- Rect structure which is used to determine the offset or size. An empty, zeroed rect is equivalent to nil
+            ScaleType: Enum.ScaleType? = Enum.ScaleType.Stretch, -- used to determine whether the TileSize, SliceCenter and SliceScale arguments are used
+            ResampleMode: Enum.ResampleMode? = Enum.ResampleMode.Default,
+            TileSize: UDim2? = UDim2.fromScale(1, 1), -- only used if the ScaleType is set to Tile
+            SliceCenter: Rect? = Rect.new(), -- only used if the ScaleType is set to Slice
+            SliceScale: number? = 1 -- only used if the ScaleType is set to Slice
+        }
+        Events = {
+            hovered: () -> boolean
+        }
+        ```
+    ]=]
+    Iris.Image = wrapper("Image")
+
+    --[=[
+        @prop ImageButton Iris.ImageButton
+        @within Image
+        @tag Widget
+
+        An image button widget for a button as an image given its texture ID and a size. The widget also supports Rect Offset and Size allowing cropping of the image, and the rest of the ScaleType properties.
+        Supports all of the events of a regular button.
+
+        ```lua
+        hasChildren = false
+        hasState = false
+        Arguments = {
+            Image: string, -- the texture asset id
+            Size: UDim2,
+            Rect: Rect? = Rect.new(), -- Rect structure which is used to determine the offset or size. An empty, zeroed rect is equivalent to nil
+            ScaleType: Enum.ScaleType? = Enum.ScaleType.Stretch, -- used to determine whether the TileSize, SliceCenter and SliceScale arguments are used
+            ResampleMode: Enum.ResampleMode? = Enum.ResampleMode.Default,
+            TileSize: UDim2? = UDim2.fromScale(1, 1), -- only used if the ScaleType is set to Tile
+            SliceCenter: Rect? = Rect.new(), -- only used if the ScaleType is set to Slice
+            SliceScale: number? = 1 -- only used if the ScaleType is set to Slice
+        }
+        Events = {
+            clicked: () -> boolean,
+            rightClicked: () -> boolean,
+            doubleClicked: () -> boolean,
+            ctrlClicked: () -> boolean, -- when the control key is down and clicked.
+            hovered: () -> boolean
+        }
+        ```
+    ]=]
+    Iris.ImageButton = wrapper("ImageButton")
 
     --[[
         ---------------------------------
@@ -1042,7 +1125,7 @@ return function(Iris: Types.Iris)
 
     --[=[
         @prop InputColor3 Iris.InputColor3
-        @within Drag
+        @within Input
         @tag Widget
         @tag HasState
         
@@ -1073,7 +1156,7 @@ return function(Iris: Types.Iris)
 
     --[=[
         @prop InputColor4 Iris.InputColor4
-        @within Drag
+        @within Input
         @tag Widget
         @tag HasState
         
@@ -1400,7 +1483,7 @@ return function(Iris: Types.Iris)
         }
         Events = {
             opened: () -> boolean,
-            clsoed: () -> boolean,
+            closed: () -> boolean,
             clicked: () -> boolean,
             hovered: () -> boolean
         }
@@ -1431,7 +1514,7 @@ return function(Iris: Types.Iris)
         }
         Events = {
             opened: () -> boolean,
-            clsoed: () -> boolean,
+            closed: () -> boolean,
             clicked: () -> boolean,
             hovered: () -> boolean
         }
@@ -1480,7 +1563,7 @@ return function(Iris: Types.Iris)
         }
         Events = {
             opened: () -> boolean,
-            clsoed: () -> boolean,
+            closed: () -> boolean,
             clicked: () -> boolean,
             hovered: () -> boolean
         }

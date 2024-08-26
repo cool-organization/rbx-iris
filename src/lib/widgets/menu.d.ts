@@ -1,4 +1,4 @@
-import { CheckEvents, Clicked, Hovered, OpenEvents, WidgetArguments, WidgetEvents, WidgetState } from ".";
+import { CheckEvents, Clicked, Hovered, OpenEvents, WidgetArguments, WidgetEvents, WidgetState } from "./creation/utils";
 
 type MenuArguments = [Text: string];
 type MenuEvents = Clicked & Hovered & OpenEvents;
@@ -15,9 +15,9 @@ type MenuToggleState = {
 	isChecked: boolean;
 };
 
-export type MenuCreation = WidgetArguments<[...MenuArguments]> & WidgetEvents<MenuEvents> & WidgetState<MenuState>;
-export type MenuItemCreation = WidgetArguments<MenuItemArguments> & WidgetEvents<MenuItemEvents>;
+export type MenuDeclaration = WidgetArguments<[...MenuArguments]> & WidgetEvents<MenuEvents> & WidgetState<MenuState>;
+export type MenuItemDeclaration = WidgetArguments<MenuItemArguments> & WidgetEvents<MenuItemEvents>;
 
-export type MenuToggleCreation = WidgetArguments<MenuToggleArguments> &
+export type MenuToggleDeclaration = WidgetArguments<MenuToggleArguments> &
 	WidgetEvents<MenuToggleEvents> &
 	WidgetState<MenuToggleState>;
