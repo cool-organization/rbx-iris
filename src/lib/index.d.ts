@@ -87,7 +87,7 @@ declare namespace Iris {
 
 	export function Init(instance?: BasePlayerGui | GuiBase, eventConnection?: EventLike): void;
 	export function Shutdown(): void;
-	export function Connect(this: typeof Iris, callback: () => unknown | void): void;
+	export function Connect(this: typeof Iris, callback: () => unknown | void): () => void;
 	export function Append(userInstance: GuiObject): void;
 	export function ForceRefresh(): void;
 
