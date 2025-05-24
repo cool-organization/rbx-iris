@@ -4,7 +4,8 @@
 	"description": "",
 	"main": "src/init.lua",
 	"scripts": {
-		"clean-install": "bunx rimraf node_modules bun.lock bun.lockb && bun install",
+		"cleanup": "bunx rimraf bun.lock bun.lockb package-lock.json yarn.lock pnpm-lock.yaml node_modules",
+		"clean-install": "bun run cleanup && bun install",
 		"build": "rbxtsc",
 		"watch": "rbxtsc -w",
 		"prepublishOnly": "bun run build"
