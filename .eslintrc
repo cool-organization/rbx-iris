@@ -7,19 +7,21 @@
 		"sourceType": "module",
 		"project": "./tsconfig.json"
 	},
-	"ignorePatterns": [
-		"/out"
-	],
+	"ignorePatterns": ["/out"],
 	"plugins": [
 		"@typescript-eslint",
+		"prettier",
 		"roblox-ts",
-		"prettier"
+		"unicorn",
+		"perfectionist"
 	],
 	"extends": [
 		"eslint:recommended",
 		"plugin:@typescript-eslint/recommended",
+		"plugin:prettier/recommended",
 		"plugin:roblox-ts/recommended",
-		"plugin:prettier/recommended"
+		"plugin:unicorn/recommended",
+		"plugin:perfectionist/recommended-natural"
 	],
 	"rules": {
 		"prettier/prettier": [
@@ -34,7 +36,59 @@
 				"endOfLine": "auto"
 			}
 		],
-		"@typescript-eslint/no-explicit-any": "off",
-		"roblox-ts/no-private-identifier": "off"
-	}
+
+		"roblox-ts/no-private-identifier": "off",
+
+		"no-constant-condition": "off",
+		"no-inner-declarations": "off",
+
+		"unicorn/no-nested-ternary": "off",
+		"unicorn/catch-error-name": "off",
+		"unicorn/no-new-array": "off",
+		"unicorn/prefer-node-protocol": "off",
+		"unicorn/prefer-module": "off",
+		"unicorn/consistent-function-scoping": "off",
+		"unicorn/no-array-callback-reference": "off",
+		"unicorn/no-useless-undefined": "off",
+		"unicorn/prefer-math-trunc": "off",
+		"unicorn/no-array-reduce": "off",
+		"unicorn/require-array-join-separator": "off",
+		"unicorn/empty-brace-spaces": "off",
+		"unicorn/no-unreadable-array-destructuring": "off",
+		"unicorn/number-literal-case": "off",
+		"unicorn/numeric-separators-style": "off",
+		"unicorn/no-array-method-this-argument": "off",
+		"unicorn/prefer-spread": "off",
+		"unicorn/no-array-for-each": "off",
+		"unicorn/switch-case-braces": "off",
+		"unicorn/prefer-array-some": "off",
+		"unicorn/prefer-string-raw": "off",
+		"unicorn/prefer-top-level-await": "off",
+		"unicorn/throw-new-error": "off",
+		"unicorn/prefer-dom-node-remove": "off",
+
+		"perfectionist/sort-objects": [
+			"error",
+			{
+				"order": "asc",
+				"type": "natural"
+			}
+		],
+		"perfectionist/sort-named-imports": [
+			"error",
+			{
+				"order": "asc",
+				"type": "natural"
+			}
+		],
+		"perfectionist/sort-imports": [
+			"error",
+			{
+				"order": "asc",
+				"type": "natural"
+			}
+		],
+		"perfectionist/sort-classes": "off"
+	},
+	"overrides": []
 }
