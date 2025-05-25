@@ -3,3 +3,5 @@
 /include
 *.tsbuildinfo
 src/test.ts
+/new-version
+/.github
