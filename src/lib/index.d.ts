@@ -155,7 +155,7 @@ declare namespace Iris {
 
 	export function State<T>(initialState: T): State<T>;
 	export function WeakState<T>(initialState: T): State<T>;
-	export function ComputedState<T, R>(firstState: T, onChangeCallback: (value: T) => R): State<R>;
+	export function ComputedState<T, R>(firstState: State<T>, onChangeCallback: (value: T) => R): State<R>;
 }
 
 /* ------------------------------ IRIS WIDGETS ------------------------------ */
