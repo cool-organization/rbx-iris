@@ -25,3 +25,5 @@ declare class WidgetClass {
 	ChildAdded(): GuiObject;
 	ChildDiscarded(): void;
 }
+
+export { Event, EventApi, Events, WidgetClass };

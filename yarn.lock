@@ -91,15 +91,15 @@
     picocolors "^1.0.0"
     tslib "^2.6.0"
 
-"@rbxts/compiler-types@^2.3.0-types.2":
-  version "2.3.0-types.2"
-  resolved "https://registry.npmjs.org/@rbxts/compiler-types/-/compiler-types-2.3.0-types.2.tgz"
-  integrity sha512-ZfCn1LNrfMS0GCfnXvLVOPE9oNNBf5851JRBGy0ptuuOK1bDvV0fljP0Xx9w6LcLFb+NLTM2GKXX+gkoCh7CvA==
+"@rbxts/compiler-types@^3.0.0-types.0":
+  version "3.0.0-types.0"
+  resolved "https://registry.npmjs.org/@rbxts/compiler-types/-/compiler-types-3.0.0-types.0.tgz"
+  integrity sha512-VGOHJPoL7+56NTatMGqQj3K7xWuzEV+aP4QD5vZiHu+bcff3kiTmtoadaF6NkJrmwfFAvbsd4Dg764ZjWNceag==
 
-"@rbxts/types@^1.0.801":
-  version "1.0.801"
-  resolved "https://registry.npmjs.org/@rbxts/types/-/types-1.0.801.tgz"
-  integrity sha512-8F9mR7cwVtkbdr0oj0Pq26ncstqs8t/a2jYrbXAe2YkmCBJwr3Iddo2lDVKelISAWJtD5wz1YSxH0uUO//XsqQ==
+"@rbxts/types@^1.0.925":
+  version "1.0.925"
+  resolved "https://registry.npmjs.org/@rbxts/types/-/types-1.0.925.tgz"
+  integrity sha512-wUbRd/6m1NOGVw5sYKerRnSKj7Vbj0e+tZLQ3TsjMmA5uS2wl36Jzep66BYIpaKn8DvhMhLxntjFBd318S66bA==
 
 "@roblox-ts/luau-ast@^1.0.11":
   version "1.0.11"
@@ -1446,10 +1446,10 @@ typescript@^4.4.4:
   resolved "https://registry.npmjs.org/typescript/-/typescript-4.9.5.tgz"
   integrity sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==
 
-typescript@^5.4.5, "typescript@>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta", typescript@>=4.2.0:
-  version "5.5.4"
-  resolved "https://registry.npmjs.org/typescript/-/typescript-5.5.4.tgz"
-  integrity sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==
+typescript@^5.9.3, "typescript@>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta", typescript@>=4.2.0:
+  version "5.9.3"
+  resolved "https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz"
+  integrity sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==
 
 typescript@=5.2.2:
   version "5.2.2"

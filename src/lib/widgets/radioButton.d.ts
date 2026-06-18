@@ -1,11 +1,16 @@
-import { Active, Hovered, SelectEvents, WidgetArguments, WidgetEvents, WidgetState } from "./creation/utils";
+import { EventApi } from "./creation/widgetClass";
 
-type RadioButtonArguments = [Text: string, Index: unknown];
-type RadioButtonEvents = Hovered & SelectEvents & Active;
-type RadioButtonState = {
-	index: unknown;
+type RadioButtonDeclaration = {
+	Arguments: [Text?: string, Index?: unknown];
+	State: {
+		index: unknown;
+	};
+	Events: {
+		selected: EventApi;
+		unselected: EventApi;
+		active: EventApi;
+		hovered: EventApi;
+	};
 };
 
-export type RadioButtonDeclaration = WidgetArguments<RadioButtonArguments> &
-	WidgetState<RadioButtonState> &
-	WidgetEvents<RadioButtonEvents>;
+export { RadioButtonDeclaration };

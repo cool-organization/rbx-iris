@@ -8,11 +8,8 @@ local TemplateConfig = {
         -- Dear ImGui uses 110, 110, 125
         -- The Roblox window selection highlight is 67, 191, 254
         BorderColor = Color3.fromRGB(110, 110, 125),
-        BorderActiveColor = Color3.fromRGB(160, 160, 175), -- does not exist in Dear ImGui
-
-        -- BorderTransparency will be problematic for non UIStroke border implimentations
-        -- is not implimented because of this
         BorderTransparency = 0.5,
+        BorderActiveColor = Color3.fromRGB(160, 160, 175), -- does not exist in Dear ImGui
         BorderActiveTransparency = 0.3,
 
         WindowBgColor = Color3.fromRGB(15, 15, 15),
@@ -20,7 +17,7 @@ local TemplateConfig = {
         PopupBgColor = Color3.fromRGB(20, 20, 20),
         PopupBgTransparency = 0.06,
 
-        ScrollbarGrabColor = Color3.fromRGB(128, 128, 128),
+        ScrollbarGrabColor = Color3.fromRGB(79, 79, 79),
         ScrollbarGrabTransparency = 0,
 
         TitleBgColor = Color3.fromRGB(10, 10, 10),
@@ -52,7 +49,7 @@ local TemplateConfig = {
 
         SliderGrabColor = Color3.fromRGB(66, 150, 250),
         SliderGrabTransparency = 0,
-        SliderGrabActiveColor = Color3.fromRGB(117, 138, 204),
+        SliderGrabActiveColor = Color3.fromRGB(66, 150, 250),
         SliderGrabActiveTransparency = 0,
 
         HeaderColor = Color3.fromRGB(66, 150, 250),
@@ -61,6 +58,13 @@ local TemplateConfig = {
         HeaderHoveredTransparency = 0.2,
         HeaderActiveColor = Color3.fromRGB(66, 150, 250),
         HeaderActiveTransparency = 0,
+
+        TabColor = Color3.fromRGB(46, 89, 148),
+        TabTransparency = 0.14,
+        TabHoveredColor = Color3.fromRGB(66, 150, 250),
+        TabHoveredTransparency = 0.2,
+        TabActiveColor = Color3.fromRGB(51, 105, 173),
+        TabActiveTransparency = 0,
 
         SelectionImageObjectColor = Color3.fromRGB(255, 255, 255),
         SelectionImageObjectTransparency = 0.8,
@@ -75,6 +79,8 @@ local TemplateConfig = {
         TableRowBgTransparency = 1,
         TableRowBgAltColor = Color3.fromRGB(255, 255, 255),
         TableRowBgAltTransparency = 0.94,
+        TableHeaderColor = Color3.fromRGB(48, 48, 51),
+        TableHeaderTransparency = 0,
 
         NavWindowingHighlightColor = Color3.fromRGB(255, 255, 255),
         NavWindowingHighlightTransparency = 0.3,
@@ -87,10 +93,21 @@ local TemplateConfig = {
         CheckMarkColor = Color3.fromRGB(66, 150, 250),
         CheckMarkTransparency = 0,
 
+        PlotLinesColor = Color3.fromRGB(156, 156, 156),
+        PlotLinesTransparency = 0,
+        PlotLinesHoveredColor = Color3.fromRGB(255, 110, 89),
+        PlotLinesHoveredTransparency = 0,
         PlotHistogramColor = Color3.fromRGB(230, 179, 0),
         PlotHistogramTransparency = 0,
         PlotHistogramHoveredColor = Color3.fromRGB(255, 153, 0),
         PlotHistogramHoveredTransparency = 0,
+
+        ResizeGripColor = Color3.fromRGB(66, 150, 250),
+        ResizeGripTransparency = 0.8,
+        ResizeGripHoveredColor = Color3.fromRGB(66, 150, 250),
+        ResizeGripHoveredTransparency = 0.33,
+        ResizeGripActiveColor = Color3.fromRGB(66, 150, 250),
+        ResizeGripActiveTransparency = 0.05,
     },
     colorLight = { -- Dear, ImGui default light
         TextColor = Color3.fromRGB(0, 0, 0),
@@ -123,8 +140,8 @@ local TemplateConfig = {
         MenubarBgColor = Color3.fromRGB(219, 219, 219),
         MenubarBgTransparency = 0,
 
-        ScrollbarGrabColor = Color3.fromRGB(96, 96, 96),
-        ScrollbarGrabTransparency = 0,
+        ScrollbarGrabColor = Color3.fromRGB(176, 176, 176),
+        ScrollbarGrabTransparency = 0.2,
 
         FrameBgColor = Color3.fromRGB(255, 255, 255),
         FrameBgTransparency = 0.6,
@@ -150,9 +167,16 @@ local TemplateConfig = {
         HeaderActiveColor = Color3.fromRGB(66, 150, 250),
         HeaderActiveTransparency = 0,
 
+        TabColor = Color3.fromRGB(195, 203, 213),
+        TabTransparency = 0.07,
+        TabHoveredColor = Color3.fromRGB(66, 150, 250),
+        TabHoveredTransparency = 0.2,
+        TabActiveColor = Color3.fromRGB(152, 186, 255),
+        TabActiveTransparency = 0,
+
         SliderGrabColor = Color3.fromRGB(61, 133, 224),
         SliderGrabTransparency = 0,
-        SliderGrabActiveColor = Color3.fromRGB(66, 150, 250),
+        SliderGrabActiveColor = Color3.fromRGB(117, 138, 204),
         SliderGrabActiveTransparency = 0,
 
         SelectionImageObjectColor = Color3.fromRGB(0, 0, 0),
@@ -168,6 +192,8 @@ local TemplateConfig = {
         TableRowBgTransparency = 1,
         TableRowBgAltColor = Color3.fromRGB(77, 77, 77),
         TableRowBgAltTransparency = 0.91,
+        TableHeaderColor = Color3.fromRGB(199, 222, 250),
+        TableHeaderTransparency = 0,
 
         NavWindowingHighlightColor = Color3.fromRGB(179, 179, 179),
         NavWindowingHighlightTransparency = 0.3,
@@ -180,10 +206,21 @@ local TemplateConfig = {
         CheckMarkColor = Color3.fromRGB(66, 150, 250),
         CheckMarkTransparency = 0,
 
+        PlotLinesColor = Color3.fromRGB(99, 99, 99),
+        PlotLinesTransparency = 0,
+        PlotLinesHoveredColor = Color3.fromRGB(255, 110, 89),
+        PlotLinesHoveredTransparency = 0,
         PlotHistogramColor = Color3.fromRGB(230, 179, 0),
         PlotHistogramTransparency = 0,
         PlotHistogramHoveredColor = Color3.fromRGB(255, 153, 0),
         PlotHistogramHoveredTransparency = 0,
+
+        ResizeGripColor = Color3.fromRGB(89, 89, 89),
+        ResizeGripTransparency = 0.83,
+        ResizeGripHoveredColor = Color3.fromRGB(66, 150, 250),
+        ResizeGripHoveredTransparency = 0.33,
+        ResizeGripActiveColor = Color3.fromRGB(66, 150, 250),
+        ResizeGripActiveTransparency = 0.05,
     },
 
     sizeDefault = { -- Dear, ImGui default
@@ -250,6 +287,7 @@ local TemplateConfig = {
     utilityDefault = {
         UseScreenGUIs = true,
         IgnoreGuiInset = false,
+        ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets,
         Parent = nil,
         RichText = false,
         TextWrapped = false,

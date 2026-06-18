@@ -1,24 +1,43 @@
-import { Active, ClickEvents, Clicked, Hovered, OpenEvents, SelectEvents, WidgetArguments, WidgetEvents, WidgetExtra, WidgetState } from "./creation/utils";
+import { EventApi } from "./creation/widgetClass";
 
-type ComboArguments = [Text: string, NoButton?: boolean, NoPreview?: boolean];
-
-type ComboEvents = Hovered & Clicked & OpenEvents;
-
-type ComboState = {
-	index: unknown;
-	isOpened: boolean;
+type ComboDeclaration = {
+	Arguments: [Text?: string, NoButton?: boolean, NoPreview?: boolean];
+	State: {
+		index: unknown;
+		isOpened: boolean;
+	};
+	Events: {
+		hovered: EventApi;
+		clicked: EventApi;
+		opened: EventApi;
+		closed: EventApi;
+		changed: EventApi;
+	};
 };
 
-type ComboArrayExtra = [selectionArray: unknown[]];
-type ComboEnumExtra = [enumType: Enum];
-
-type SelectableArguments = [Text: string, Index: unknown, NoClick?: boolean];
-type SelectableEvents = Hovered & ClickEvents & SelectEvents & Active;
-type SelectableState = {
-	index: unknown;
+type ComboArrayDeclaration = ComboDeclaration & {
+	Extra: [selectionArray: unknown[]];
 };
 
-export type ComboDeclaration = WidgetArguments<ComboArguments> & WidgetEvents<ComboEvents> & WidgetState<ComboState>;
-export type ComboArrayDeclaration = WidgetArguments<ComboArguments> & WidgetEvents<ComboEvents> & WidgetState<ComboState> & WidgetExtra<ComboArrayExtra>;
-export type ComboEnumDeclaration = WidgetArguments<ComboArguments> & WidgetEvents<ComboEvents> & WidgetState<ComboState> & WidgetExtra<ComboEnumExtra>;
-export type SelectableDeclaration = WidgetArguments<SelectableArguments> & WidgetEvents<SelectableEvents> & WidgetState<SelectableState>;
+type ComboEnumDeclaration = ComboDeclaration & {
+	Extra: [enumType: Enum];
+};
+
+type SelectableDeclaration = {
+	Arguments: [Text?: string, Index?: unknown, NoClick?: boolean];
+	State: {
+		index: unknown;
+	};
+	Events: {
+		hovered: EventApi;
+		clicked: EventApi;
+		rightClicked: EventApi;
+		doubleClicked: EventApi;
+		ctrlClicked: EventApi;
+		selected: EventApi;
+		unselected: EventApi;
+		active: EventApi;
+	};
+};
+
+export { ComboArrayDeclaration, ComboDeclaration, ComboEnumDeclaration, SelectableDeclaration };
