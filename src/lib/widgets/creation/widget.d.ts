@@ -1,10 +1,10 @@
-import { State, WidgetDeclaration } from "./utils";
+import { StateType, WidgetDeclaration } from "./utils";
 import { UnknownDeclaration } from "../unknown";
 
 type Widget<T extends WidgetDeclaration = UnknownDeclaration> = {
 	ID: string;
 	type: string;
-	state: T["State"] extends object ? { [P in keyof T["State"]]: State<T["State"][P]> } : undefined;
+	state: T["State"] extends object ? { [P in keyof T["State"]]: StateType<T["State"][P]> } : undefined;
 
 	parentWidget: Widget;
 	Instance: GuiObject;

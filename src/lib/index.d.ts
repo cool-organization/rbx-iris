@@ -3,7 +3,7 @@ import { IrisInternal as Internal } from "./iris/internal";
 import { ButtonDeclaration } from "./widgets/button";
 import { CheckboxDeclaration } from "./widgets/checkbox";
 import { ComboArrayDeclaration, ComboDeclaration, ComboEnumDeclaration, SelectableDeclaration } from "./widgets/combo";
-import { State } from "./widgets/creation/utils";
+import { StateType } from "./widgets/creation/utils";
 import { Event, EventApi, WidgetClass } from "./widgets/creation/widgetClass";
 import { IndentDeclaration, SameLineDeclaration } from "./widgets/format";
 import { ImageButtonDeclaration, ImageDeclaration } from "./widgets/image";
@@ -30,7 +30,7 @@ import { TooltipDeclaration, WindowDeclaration } from "./widgets/window";
 
 /* --------------------------------- HELPERS --------------------------------- */
 
-type Stateify<T> = { [P in keyof T]: State<T[P]> };
+type Stateify<T> = { [P in keyof T]: StateType<T[P]> };
 
 type Widget<T extends Record<string, any> = Record<string, unknown>> = {
 	ID: string;
@@ -63,7 +63,7 @@ type Widget<T extends Record<string, any> = Record<string, unknown>> = {
 } & (T extends { Events: infer E } ? E : {});
 
 type InitialState<T extends Record<string, unknown>> = {
-	[P in keyof T]?: State<T[P]> | T[P];
+	[P in keyof T]?: StateType<T[P]> | T[P];
 };
 
 /* -------------------------------- IRIS API -------------------------------- */
@@ -126,17 +126,18 @@ declare namespace Iris {
 
 /* ------------------------------- IRIS STATE ------------------------------- */
 declare namespace Iris {
-	export type Stateify<T> = { [P in keyof T]: State<T[P]> };
+	export { type StateType as State };
+	export type Stateify<T> = { [P in keyof T]: StateType<T[P]> };
 
-	export function State<T>(initialState: T): State<T>;
-	export function WeakState<T>(initialState: T): State<T>;
-	export function VariableState<T>(variable: T, callback: (value: T) => void): State<T>;
+	export function State<T>(initialState: T): StateType<T>;
+	export function WeakState<T>(initialState: T): StateType<T>;
+	export function VariableState<T>(variable: T, callback: (value: T) => void): StateType<T>;
 	export function TableState<K extends string | number | symbol, V>(
 		table: Record<K, V>,
 		key: K,
 		callback?: (newValue: V) => boolean | void,
-	): State<V>;
-	export function ComputedState<T, R>(firstState: State<T>, onChangeCallback: (value: T) => R): State<R>;
+	): StateType<V>;
+	export function ComputedState<T, R>(firstState: StateType<T>, onChangeCallback: (value: T) => R): StateType<R>;
 }
 
 /* ------------------------------ IRIS WIDGETS ------------------------------ */

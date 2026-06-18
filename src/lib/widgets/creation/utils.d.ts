@@ -66,7 +66,7 @@ export {
 	RightClicked,
 	Selected,
 	SelectEvents,
-	State,
+	State as StateType,
 	StateOrLiteral,
 	Unchecked,
 	Uncollapsed,
