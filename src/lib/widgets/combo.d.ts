@@ -1,4 +1,3 @@
-import { Active, ClickEvents, Clicked, Hovered, OpenEvents, SelectEvents, WidgetArguments, WidgetEvents, WidgetExtra, WidgetState } from "./creation/utils";
 import { EventApi } from "./creation/widgetClass";
 
 type ComboDeclaration = {
@@ -41,4 +40,4 @@ type SelectableDeclaration = {
 	};
 };
 
-export { ComboDeclaration, ComboArrayDeclaration, ComboEnumDeclaration, SelectableDeclaration };
+export { ComboArrayDeclaration, ComboDeclaration, ComboEnumDeclaration, SelectableDeclaration };

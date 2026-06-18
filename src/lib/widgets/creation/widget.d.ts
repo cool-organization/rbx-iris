@@ -1,5 +1,4 @@
-import { Widget } from "../../..";
-import { WidgetDeclaration } from "./utils";
+import { State, WidgetDeclaration } from "./utils";
 import { UnknownDeclaration } from "../unknown";
 
 type Widget<T extends WidgetDeclaration = UnknownDeclaration> = {

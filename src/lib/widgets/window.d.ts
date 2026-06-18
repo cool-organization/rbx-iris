@@ -1,8 +1,18 @@
-import { WidgetArguments, WidgetEvents, WidgetState } from "./creation/utils";
 import { EventApi } from "./creation/widgetClass";
 
 type WindowDeclaration = {
-	Arguments: [Title: string, NoTitleBar?: boolean, NoBackground?: boolean, NoCollapse?: boolean, NoClose?: boolean, NoMove?: boolean, NoScrollbar?: boolean, NoResize?: boolean, NoNav?: boolean, NoMenu?: boolean];
+	Arguments: [
+		Title: string,
+		NoTitleBar?: boolean,
+		NoBackground?: boolean,
+		NoCollapse?: boolean,
+		NoClose?: boolean,
+		NoMove?: boolean,
+		NoScrollbar?: boolean,
+		NoResize?: boolean,
+		NoNav?: boolean,
+		NoMenu?: boolean,
+	];
 	State: {
 		size: Vector2;
 		position: Vector2;
@@ -26,4 +36,4 @@ type TooltipDeclaration = {
 	};
 };
 
-export { WindowDeclaration, TooltipDeclaration };
+export { TooltipDeclaration, WindowDeclaration };

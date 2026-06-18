@@ -1,7 +1,14 @@
 import { EventApi } from "./creation/widgetClass";
 
 type InputNumberDeclaration = {
-	Arguments: [Text?: string, Increment?: number, Min?: number, Max?: number, Format?: string | string[], NoButtons?: boolean];
+	Arguments: [
+		Text?: string,
+		Increment?: number,
+		Min?: number,
+		Max?: number,
+		Format?: string | string[],
+		NoButtons?: boolean,
+	];
 	State: {
 		number: number;
 		editingText: boolean;
@@ -13,7 +20,15 @@ type InputNumberDeclaration = {
 };
 
 type InputDeclaration<T> = {
-	Arguments: [Text?: string, Increment?: T, Min?: T, Max?: T, Format?: string | string[], Prefix?: string[], BaseLine?: number];
+	Arguments: [
+		Text?: string,
+		Increment?: T,
+		Min?: T,
+		Max?: T,
+		Format?: string | string[],
+		Prefix?: string[],
+		BaseLine?: number,
+	];
 	State: {
 		number: T;
 		editingText: boolean;
@@ -60,4 +75,10 @@ type InputTextDeclaration = {
 	};
 };
 
-export { InputNumberDeclaration, InputDeclaration, InputColorDeclaration, InputColor4Declaration, InputTextDeclaration };
+export {
+	InputColor4Declaration,
+	InputColorDeclaration,
+	InputDeclaration,
+	InputNumberDeclaration,
+	InputTextDeclaration,
+};

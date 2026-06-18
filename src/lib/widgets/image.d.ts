@@ -36,4 +36,4 @@ type ImageButtonDeclaration = {
 	};
 };
 
-export { ImageDeclaration, ImageButtonDeclaration };
+export { ImageButtonDeclaration, ImageDeclaration };

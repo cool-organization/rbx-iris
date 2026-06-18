@@ -26,4 +26,4 @@ declare class WidgetClass {
 	ChildDiscarded(): void;
 }
 
-export { Event, Events, EventApi, WidgetClass };
+export { Event, EventApi, Events, WidgetClass };

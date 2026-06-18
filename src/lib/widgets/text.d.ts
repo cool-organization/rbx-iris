@@ -40,4 +40,10 @@ type TextColoredDeclaration = {
 	};
 };
 
-export { TextDeclaration, SeparatorTextDeclaration, InputTextDeclaration, TextWrappedDeclaration, TextColoredDeclaration };
+export {
+	InputTextDeclaration,
+	SeparatorTextDeclaration,
+	TextColoredDeclaration,
+	TextDeclaration,
+	TextWrappedDeclaration,
+};

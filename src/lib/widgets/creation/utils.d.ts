@@ -1,5 +1,12 @@
-import { State } from "../../..";
 import { EventApi } from "./widgetClass";
+
+interface State<T = unknown> {
+	readonly value: T;
+	get(): T;
+	set(newValue: T): void;
+	onChange(connect: (value: T) => void): () => void;
+	changed(): boolean;
+}
 
 //---[[Events]]---//
 
@@ -41,31 +48,32 @@ type InitialState<T extends Record<string, unknown>> = {
 };
 
 export {
-	WidgetArguments,
-	WidgetState,
-	WidgetEvents,
-	WidgetExtra,
-	WidgetDeclaration,
-	Hovered,
+	Active,
+	Checked,
+	CheckEvents,
 	Clicked,
-	RightClicked,
+	ClickEvents,
+	Closed,
+	Collapsed,
+	CollapseEvents,
 	CtrlClicked,
 	DoubleClicked,
-	Opened,
-	Closed,
-	Selected,
-	Unselected,
-	Active,
-	Collapsed,
-	Uncollapsed,
-	Checked,
-	Unchecked,
-	NumberChanged,
-	ClickEvents,
-	OpenEvents,
-	CheckEvents,
-	SelectEvents,
-	CollapseEvents,
-	StateOrLiteral,
+	Hovered,
 	InitialState,
+	NumberChanged,
+	Opened,
+	OpenEvents,
+	RightClicked,
+	Selected,
+	SelectEvents,
+	State,
+	StateOrLiteral,
+	Unchecked,
+	Uncollapsed,
+	Unselected,
+	WidgetArguments,
+	WidgetDeclaration,
+	WidgetEvents,
+	WidgetExtra,
+	WidgetState,
 };

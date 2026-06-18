@@ -1,4 +1,3 @@
-import { CheckEvents, Hovered, WidgetArguments, WidgetEvents, WidgetState } from "./creation/utils";
 import { EventApi } from "./creation/widgetClass";
 
 type CheckboxDeclaration = {

@@ -24,4 +24,4 @@ type CollapsingHeaderDeclaration = {
 	};
 };
 
-export { TreeDeclaration, CollapsingHeaderDeclaration };
+export { CollapsingHeaderDeclaration, TreeDeclaration };

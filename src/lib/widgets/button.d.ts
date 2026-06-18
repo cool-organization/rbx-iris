@@ -1,4 +1,3 @@
-import { ClickEvents, Hovered, WidgetArguments, WidgetEvents } from "./creation/utils";
 import { EventApi } from "./creation/widgetClass";
 
 type ButtonDeclaration = {

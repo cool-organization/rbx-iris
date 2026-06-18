@@ -3,7 +3,11 @@ type IndentDeclaration = {
 };
 
 type SameLineDeclaration = {
-	Arguments: [Width?: number, VerticalAlignment?: Enum.VerticalAlignment, HorizontalAlignment?: Enum.HorizontalAlignment];
+	Arguments: [
+		Width?: number,
+		VerticalAlignment?: Enum.VerticalAlignment,
+		HorizontalAlignment?: Enum.HorizontalAlignment,
+	];
 };
 
 type SeparatorDeclaration = {
@@ -14,4 +18,4 @@ type GroupDeclaration = {
 	Arguments: [];
 };
 
-export { IndentDeclaration, SameLineDeclaration, SeparatorDeclaration, GroupDeclaration };
+export { GroupDeclaration, IndentDeclaration, SameLineDeclaration, SeparatorDeclaration };

@@ -31,4 +31,4 @@ type PlotHistogramDeclaration = {
 	};
 };
 
-export { ProgressBarDeclaration, PlotLinesDeclaration, PlotHistogramDeclaration };
+export { PlotHistogramDeclaration, PlotLinesDeclaration, ProgressBarDeclaration };
