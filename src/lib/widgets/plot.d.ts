@@ -1,12 +1,34 @@
-import { Hovered, WidgetArguments, WidgetEvents, WidgetState } from "./creation/utils";
 import { EventApi } from "./creation/widgetClass";
 
-type ProgressBarArguments = [Text?: string, Format?: string];
-type ProgressBarEvents = {
-	changed: EventApi;
-} & Hovered;
-type ProgressBarState = {
-	progress: number;
+type ProgressBarDeclaration = {
+	Arguments: [Text?: string, Format?: string];
+	State: {
+		progress: number;
+	};
+	Events: {
+		changed: EventApi;
+		hovered: EventApi;
+	};
 };
 
-export type ProgressBarDeclaration = WidgetArguments<ProgressBarArguments> & WidgetEvents<ProgressBarEvents> & WidgetState<ProgressBarState>;
+type PlotLinesDeclaration = {
+	Arguments: [Text: string, Height: number, Min: number, Max: number, TextOverlay?: string];
+	State: {
+		values: number[];
+	};
+	Events: {
+		hovered: EventApi;
+	};
+};
+
+type PlotHistogramDeclaration = {
+	Arguments: [Text: string, Height: number, Min: number, Max: number, TextOverlay?: string, BaseLine?: number];
+	State: {
+		values: number[];
+	};
+	Events: {
+		hovered: EventApi;
+	};
+};
+
+export { ProgressBarDeclaration, PlotLinesDeclaration, PlotHistogramDeclaration };

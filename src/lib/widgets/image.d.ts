@@ -1,18 +1,39 @@
-import { ClickEvents, Hovered, WidgetArguments } from "./creation/utils";
+import { EventApi } from "./creation/widgetClass";
 
-type ImageArguments = [
-	Image: string,
-	Size: UDim2,
-	ScaleType: Enum.ScaleType,
-	ResampleMode: Enum.ResamplerMode,
-	TileSize: UDim2,
-	SliceCenter: Vector2,
-	SliceScale: number,
-];
+type ImageDeclaration = {
+	Arguments: [
+		Image: string,
+		Size?: UDim2,
+		Rect?: Rect,
+		ScaleType?: Enum.ScaleType,
+		ResampleMode?: Enum.ResamplerMode,
+		TileSize?: UDim2,
+		SliceCenter?: Rect,
+		SliceScale?: number,
+	];
+	Events: {
+		hovered: EventApi;
+	};
+};
 
-type ImageEvents = Hovered;
+type ImageButtonDeclaration = {
+	Arguments: [
+		Image: string,
+		Size?: UDim2,
+		Rect?: Rect,
+		ScaleType?: Enum.ScaleType,
+		ResampleMode?: Enum.ResamplerMode,
+		TileSize?: UDim2,
+		SliceCenter?: Rect,
+		SliceScale?: number,
+	];
+	Events: {
+		hovered: EventApi;
+		clicked: EventApi;
+		rightClicked: EventApi;
+		doubleClicked: EventApi;
+		ctrlClicked: EventApi;
+	};
+};
 
-type ImageButtonEvents = ClickEvents & Hovered;
-
-export type ImageDeclaration = WidgetArguments<ImageArguments> & ImageEvents;
-export type ImageButtonDeclaration = WidgetArguments<ImageArguments> & ImageButtonEvents;
+export { ImageDeclaration, ImageButtonDeclaration };

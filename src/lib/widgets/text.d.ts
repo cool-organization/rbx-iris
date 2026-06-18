@@ -1,26 +1,43 @@
-import { Hovered, WidgetArguments, WidgetEvents, WidgetState } from "./creation/utils";
 import { EventApi } from "./creation/widgetClass";
 
-type TextArguments = [Text: string, Wrapped?: boolean, Color?: Color3, RichText?: boolean];
-type TextEvents = Hovered;
-
-type InputTextArguments = [Text?: string, TextHint?: string];
-type InputTextState = {
-	text: string;
+type TextDeclaration = {
+	Arguments: [Text: string, Wrapped?: boolean, Color?: Color3, RichText?: boolean];
+	Events: {
+		hovered: EventApi;
+	};
 };
-type InputTextEvents = {
-	textChanged: EventApi;
-} & Hovered;
 
-type TextWrappedArguments = [Text: string];
-type SeparatorTextArguments = [Text: string];
+type SeparatorTextDeclaration = {
+	Arguments: [Text: string];
+	Events: {
+		hovered: EventApi;
+	};
+};
 
-type TextColoredArguments = [Text: string, Color: Color3];
+type InputTextDeclaration = {
+	Arguments: [Text?: string, TextHint?: string, ReadOnly?: boolean, MultiLine?: boolean];
+	State: {
+		text: string;
+	};
+	Events: {
+		textChanged: EventApi;
+		hovered: EventApi;
+	};
+};
 
-export type InputTextDeclaration = WidgetArguments<InputTextArguments> & WidgetState<InputTextState> & WidgetEvents<InputTextEvents>;
+// Deprecated
+type TextWrappedDeclaration = {
+	Arguments: [Text: string];
+	Events: {
+		hovered: EventApi;
+	};
+};
 
-export type SeparatorTextDeclaration = WidgetArguments<SeparatorTextArguments>;
+type TextColoredDeclaration = {
+	Arguments: [Text: string, Color?: Color3];
+	Events: {
+		hovered: EventApi;
+	};
+};
 
-export type TextDeclaration = WidgetArguments<TextArguments> & WidgetEvents<TextEvents>;
-export type TextWrappedDeclaration = WidgetArguments<TextWrappedArguments> & WidgetEvents<TextEvents>;
-export type TextColoredDeclaration = WidgetArguments<TextColoredArguments> & WidgetEvents<TextEvents>;
+export { TextDeclaration, SeparatorTextDeclaration, InputTextDeclaration, TextWrappedDeclaration, TextColoredDeclaration };

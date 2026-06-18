@@ -1,5 +1,15 @@
 import { ClickEvents, Hovered, WidgetArguments, WidgetEvents } from "./creation/utils";
+import { EventApi } from "./creation/widgetClass";
 
-type ButtonArguments = [Text: string];
-type ButtonEvents = Hovered & ClickEvents;
-export type BaseButtonDeclaration = WidgetArguments<ButtonArguments> & WidgetEvents<ButtonEvents>;
+type ButtonDeclaration = {
+	Arguments: [Text: string, Size?: UDim2];
+	Events: {
+		hovered: EventApi;
+		clicked: EventApi;
+		rightClicked: EventApi;
+		doubleClicked: EventApi;
+		ctrlClicked: EventApi;
+	};
+};
+
+export { ButtonDeclaration };

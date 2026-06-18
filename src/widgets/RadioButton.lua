@@ -11,20 +11,20 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
         },
         Events = {
             ["selected"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.RadioButton) end,
+                ["Get"] = function(thisWidget: Types.RadioButton)
                     return thisWidget.lastSelectedTick == Iris._cycleTick
                 end,
             },
             ["unselected"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.RadioButton) end,
+                ["Get"] = function(thisWidget: Types.RadioButton)
                     return thisWidget.lastUnselectedTick == Iris._cycleTick
                 end,
             },
             ["active"] = {
-                ["Init"] = function(_thisWidget: Types.Widget) end,
-                ["Get"] = function(thisWidget: Types.Widget)
+                ["Init"] = function(_thisWidget: Types.RadioButton) end,
+                ["Get"] = function(thisWidget: Types.RadioButton)
                     return thisWidget.state.index.value == thisWidget.arguments.Index
                 end,
             },
@@ -32,55 +32,52 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
                 return thisWidget.Instance
             end),
         },
-        Generate = function(thisWidget: Types.Widget)
-            local RadioButton: TextButton = Instance.new("TextButton")
+        Generate = function(thisWidget: Types.RadioButton)
+            local RadioButton = Instance.new("TextButton")
             RadioButton.Name = "Iris_RadioButton"
             RadioButton.AutomaticSize = Enum.AutomaticSize.XY
             RadioButton.Size = UDim2.fromOffset(0, 0)
             RadioButton.BackgroundTransparency = 1
             RadioButton.BorderSizePixel = 0
             RadioButton.Text = ""
-            RadioButton.LayoutOrder = thisWidget.ZIndex
             RadioButton.AutoButtonColor = false
-            RadioButton.ZIndex = thisWidget.ZIndex
-            RadioButton.LayoutOrder = thisWidget.ZIndex
 
-            local UIListLayout: UIListLayout = widgets.UIListLayout(RadioButton, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X))
-            UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+            widgets.UIListLayout(RadioButton, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing.X)).VerticalAlignment = Enum.VerticalAlignment.Center
 
-            local buttonSize: number = Iris._config.TextSize + 2 * (Iris._config.FramePadding.Y - 1)
-            local Button: Frame = Instance.new("Frame")
+            local buttonSize = Iris._config.TextSize + 2 * (Iris._config.FramePadding.Y - 1)
+            local Button = Instance.new("Frame")
             Button.Name = "Button"
             Button.Size = UDim2.fromOffset(buttonSize, buttonSize)
-            Button.Parent = RadioButton
             Button.BackgroundColor3 = Iris._config.FrameBgColor
             Button.BackgroundTransparency = Iris._config.FrameBgTransparency
+            Button.Parent = RadioButton
 
             widgets.UICorner(Button)
-            widgets.UIPadding(Button, math.max(1, buttonSize // 5) * Vector2.one)
+            widgets.UIPadding(Button, Vector2.new(math.max(1, math.floor(buttonSize / 5)), math.max(1, math.floor(buttonSize / 5))))
 
-            local Circle: Frame = Instance.new("Frame")
+            local Circle = Instance.new("Frame")
             Circle.Name = "Circle"
             Circle.Size = UDim2.fromScale(1, 1)
-            Circle.Parent = Button
             Circle.BackgroundColor3 = Iris._config.CheckMarkColor
             Circle.BackgroundTransparency = Iris._config.CheckMarkTransparency
             widgets.UICorner(Circle)
+            
+            Circle.Parent = Button
 
-            widgets.applyInteractionHighlights(thisWidget, RadioButton, Button, {
-                ButtonColor = Iris._config.FrameBgColor,
-                ButtonTransparency = Iris._config.FrameBgTransparency,
-                ButtonHoveredColor = Iris._config.FrameBgHoveredColor,
-                ButtonHoveredTransparency = Iris._config.FrameBgHoveredTransparency,
-                ButtonActiveColor = Iris._config.FrameBgActiveColor,
-                ButtonActiveTransparency = Iris._config.FrameBgActiveTransparency,
+            widgets.applyInteractionHighlights("Background", RadioButton, Button, {
+                Color = Iris._config.FrameBgColor,
+                Transparency = Iris._config.FrameBgTransparency,
+                HoveredColor = Iris._config.FrameBgHoveredColor,
+                HoveredTransparency = Iris._config.FrameBgHoveredTransparency,
+                ActiveColor = Iris._config.FrameBgActiveColor,
+                ActiveTransparency = Iris._config.FrameBgActiveTransparency,
             })
 
-            widgets.applyButtonClick(thisWidget, RadioButton, function()
+            widgets.applyButtonClick(RadioButton, function()
                 thisWidget.state.index:set(thisWidget.arguments.Index)
             end)
 
-            local TextLabel: TextLabel = Instance.new("TextLabel")
+            local TextLabel = Instance.new("TextLabel")
             TextLabel.Name = "TextLabel"
             TextLabel.AutomaticSize = Enum.AutomaticSize.XY
             TextLabel.BackgroundTransparency = 1
@@ -92,25 +89,26 @@ return function(Iris: Types.Internal, widgets: Types.WidgetUtility)
 
             return RadioButton
         end,
-        Update = function(thisWidget: Types.Widget)
+        Update = function(thisWidget: Types.RadioButton)
             local RadioButton = thisWidget.Instance :: TextButton
             local TextLabel: TextLabel = RadioButton.TextLabel
 
             TextLabel.Text = thisWidget.arguments.Text or "Radio Button"
             if thisWidget.state then
+                thisWidget.state.index.lastChangeTick = Iris._cycleTick
                 Iris._widgets[thisWidget.type].UpdateState(thisWidget)
             end
         end,
-        Discard = function(thisWidget: Types.Widget)
+        Discard = function(thisWidget: Types.RadioButton)
             thisWidget.Instance:Destroy()
             widgets.discardState(thisWidget)
         end,
-        GenerateState = function(thisWidget: Types.Widget)
+        GenerateState = function(thisWidget: Types.RadioButton)
             if thisWidget.state.index == nil then
-                thisWidget.state.index = Iris._widgetState(thisWidget, "index", thisWidget.arguments.Value)
+                thisWidget.state.index = Iris._widgetState(thisWidget, "index", thisWidget.arguments.Index)
             end
         end,
-        UpdateState = function(thisWidget: Types.Widget)
+        UpdateState = function(thisWidget: Types.RadioButton)
             local RadioButton = thisWidget.Instance :: TextButton
             local Button = RadioButton.Button :: Frame
             local Circle: Frame = Button.Circle

@@ -1,13 +1,27 @@
-import { CollapseEvents, Hovered, WidgetArguments, WidgetEvents, WidgetState } from "./creation/utils";
+import { EventApi } from "./creation/widgetClass";
 
-type TreeArguments = [Text: string, SpanAvailWidth?: boolean, NoIndent?: boolean];
-type CollapsableEvents = Hovered & CollapseEvents;
-type CollapsableState = {
-	isUncollapsed: boolean;
+type TreeDeclaration = {
+	Arguments: [Text: string, SpanAvailWidth?: boolean, NoIndent?: boolean, DefaultOpen?: true];
+	State: {
+		isUncollapsed: boolean;
+	};
+	Events: {
+		hovered: EventApi;
+		collapsed: EventApi;
+		uncollapsed: EventApi;
+	};
 };
 
-type CollapsingHeaderArguments = [Text: string];
+type CollapsingHeaderDeclaration = {
+	Arguments: [Text?: string, DefaultOpen?: true];
+	State: {
+		isUncollapsed: boolean;
+	};
+	Events: {
+		hovered: EventApi;
+		collapsed: EventApi;
+		uncollapsed: EventApi;
+	};
+};
 
-export type TreeDeclaration = WidgetArguments<TreeArguments> & WidgetEvents<CollapsableEvents> & WidgetState<CollapsableState>;
-
-export type CollapsingHeaderDeclaration = WidgetArguments<CollapsingHeaderArguments> & WidgetEvents<CollapsableEvents> & WidgetState<CollapsableState>;
+export { TreeDeclaration, CollapsingHeaderDeclaration };

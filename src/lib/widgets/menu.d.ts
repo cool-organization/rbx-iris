@@ -1,23 +1,36 @@
-import { CheckEvents, Clicked, Hovered, OpenEvents, WidgetArguments, WidgetEvents, WidgetState } from "./creation/utils";
+import { EventApi } from "./creation/widgetClass";
 
-type MenuArguments = [Text: string];
-type MenuEvents = Clicked & Hovered & OpenEvents;
-type MenuState = {
-	isOpened: boolean;
+type MenuDeclaration = {
+	Arguments: [Text?: string];
+	State: {
+		isOpened: boolean;
+	};
+	Events: {
+		clicked: EventApi;
+		hovered: EventApi;
+		opened: EventApi;
+		closed: EventApi;
+	};
 };
 
-type MenuItemArguments = [Text: string, KeyCode?: Enum.KeyCode, ModifierKey?: Enum.ModifierKey];
-type MenuItemEvents = Clicked & Hovered;
-
-type MenuToggleArguments = MenuItemArguments;
-type MenuToggleEvents = Hovered & CheckEvents;
-type MenuToggleState = {
-	isChecked: boolean;
+type MenuItemDeclaration = {
+	Arguments: [Text: string, KeyCode?: Enum.KeyCode, ModifierKey?: Enum.ModifierKey];
+	Events: {
+		clicked: EventApi;
+		hovered: EventApi;
+	};
 };
 
-export type MenuDeclaration = WidgetArguments<[...MenuArguments]> & WidgetEvents<MenuEvents> & WidgetState<MenuState>;
-export type MenuItemDeclaration = WidgetArguments<MenuItemArguments> & WidgetEvents<MenuItemEvents>;
+type MenuToggleDeclaration = {
+	Arguments: [Text: string, KeyCode?: Enum.KeyCode, ModifierKey?: Enum.ModifierKey];
+	State: {
+		isChecked: boolean;
+	};
+	Events: {
+		checked: EventApi;
+		unchecked: EventApi;
+		hovered: EventApi;
+	};
+};
 
-export type MenuToggleDeclaration = WidgetArguments<MenuToggleArguments> &
-	WidgetEvents<MenuToggleEvents> &
-	WidgetState<MenuToggleState>;
+export { MenuDeclaration, MenuItemDeclaration, MenuToggleDeclaration };

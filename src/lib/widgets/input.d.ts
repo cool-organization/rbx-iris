@@ -1,30 +1,63 @@
-import { Hovered, WidgetArguments, WidgetEvents, WidgetState } from "./creation/utils";
 import { EventApi } from "./creation/widgetClass";
 
-type InputArguments<T> = [Text?: string, Increment?: T, Min?: T, Max?: T, Format?: string | string[]];
-type InputNumArguments = [...InputArguments<number>, NoButtons?: boolean];
-
-type InputEvents = {
-	numberChanged: EventApi;
-} & Hovered;
-
-type InputState<T> = {
-	number: T;
-	editingText: boolean;
+type InputNumberDeclaration = {
+	Arguments: [Text?: string, Increment?: number, Min?: number, Max?: number, Format?: string | string[], NoButtons?: boolean];
+	State: {
+		number: number;
+		editingText: boolean;
+	};
+	Events: {
+		numberChanged: EventApi;
+		hovered: EventApi;
+	};
 };
 
-type InputColorArguments = [Text?: string, UseFloats?: boolean, UseHSV?: boolean, Format?: string | string[]];
-type InputColorState = {
-	color: Color3;
-	editingText: boolean;
+type InputDeclaration<T> = {
+	Arguments: [Text?: string, Increment?: T, Min?: T, Max?: T, Format?: string | string[], Prefix?: string[], BaseLine?: number];
+	State: {
+		number: T;
+		editingText: boolean;
+	};
+	Events: {
+		numberChanged: EventApi;
+		hovered: EventApi;
+	};
 };
-type InputColor4State = {
-	transparency: number;
-} & InputColorState;
 
-type InputWidgetDeclaration<T> = WidgetArguments<InputArguments<T>> & WidgetEvents<InputEvents> & WidgetState<InputState<T>>;
+type InputColorDeclaration = {
+	Arguments: [Text?: string, UseFloats?: boolean, UseHSV?: boolean, Format?: string | string[]];
+	State: {
+		color: Color3;
+		editingText: boolean;
+	};
+	Events: {
+		numberChanged: EventApi;
+		hovered: EventApi;
+	};
+};
 
-export type InputNumDeclaration = WidgetArguments<InputNumArguments> & WidgetEvents<InputEvents> & WidgetState<InputState<number>>;
+type InputColor4Declaration = {
+	Arguments: [Text?: string, UseFloats?: boolean, UseHSV?: boolean, Format?: string | string[]];
+	State: {
+		color: Color3;
+		transparency: number;
+		editingText: boolean;
+	};
+	Events: {
+		numberChanged: EventApi;
+		hovered: EventApi;
+	};
+};
 
-export type InputColor3Declaration = WidgetArguments<InputColorArguments> & WidgetEvents<InputEvents> & WidgetState<InputColorState>;
-export type InputColor4Declaration = WidgetArguments<InputColorArguments> & WidgetEvents<InputEvents> & WidgetState<InputColor4State>;
+type InputTextDeclaration = {
+	Arguments: [Text?: string, TextHint?: string, ReadOnly?: boolean, MultiLine?: boolean];
+	State: {
+		text: string;
+	};
+	Events: {
+		textChanged: EventApi;
+		hovered: EventApi;
+	};
+};
+
+export { InputNumberDeclaration, InputDeclaration, InputColorDeclaration, InputColor4Declaration, InputTextDeclaration };

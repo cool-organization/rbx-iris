@@ -1,6 +1,23 @@
-import { Hovered, WidgetArguments, WidgetEvents } from "./creation/utils";
+import { EventApi } from "./creation/widgetClass";
 
-type TableArguments = [NumColumns: number, RowBg?: boolean, BordersOuter?: boolean, BordersInner?: boolean];
-type TableEvents = Hovered;
+type TableDeclaration = {
+	Arguments: [
+		NumColumns: number,
+		Header?: boolean,
+		RowBackground?: boolean,
+		OuterBorders?: boolean,
+		InnerBorders?: boolean,
+		Resizable?: boolean,
+		FixedWidth?: boolean,
+		ProportionalWidth?: boolean,
+		LimitTableWidth?: boolean,
+	];
+	State: {
+		widths: number[];
+	};
+	Events: {
+		hovered: EventApi;
+	};
+};
 
-export type TableDeclaration = WidgetArguments<TableArguments> & WidgetEvents<TableEvents>;
+export { TableDeclaration };

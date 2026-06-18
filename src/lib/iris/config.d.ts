@@ -55,6 +55,13 @@ export interface Config {
 	HeaderActiveColor: Color3;
 	HeaderActiveTransparency: number;
 
+	TabColor: Color3;
+	TabTransparency: number;
+	TabHoveredColor: Color3;
+	TabHoveredTransparency: number;
+	TabActiveColor: Color3;
+	TabActiveTransparency: number;
+
 	SelectionImageObjectColor: Color3;
 	SelectionImageObjectTransparency: number;
 	SelectionImageObjectBorderColor: Color3;
@@ -68,6 +75,8 @@ export interface Config {
 	TableRowBgTransparency: number;
 	TableRowBgAltColor: Color3;
 	TableRowBgAltTransparency: number;
+	TableHeaderColor: Color3;
+	TableHeaderTransparency: number;
 
 	NavWindowingHighlightColor: Color3;
 	NavWindowingHighlightTransparency: number;
@@ -80,10 +89,21 @@ export interface Config {
 	CheckMarkColor: Color3;
 	CheckMarkTransparency: number;
 
+	PlotLinesColor: Color3;
+	PlotLinesTransparency: number;
+	PlotLinesHoveredColor: Color3;
+	PlotLinesHoveredTransparency: number;
 	PlotHistogramColor: Color3;
 	PlotHistogramTransparency: number;
 	PlotHistogramHoveredColor: Color3;
 	PlotHistogramHoveredTransparency: number;
+
+	ResizeGripColor: Color3;
+	ResizeGripTransparency: number;
+	ResizeGripHoveredColor: Color3;
+	ResizeGripHoveredTransparency: number;
+	ResizeGripActiveColor: Color3;
+	ResizeGripActiveTransparency: number;
 
 	HoverColor: Color3;
 	HoverTransparency: number;
@@ -119,6 +139,7 @@ export interface Config {
 
 	UseScreenGUIs: boolean;
 	IgnoreGuiInset: boolean;
+	ScreenInsets: Enum.ScreenInsets;
 	Parent: BasePlayerGui;
 	RichText: boolean;
 	TextWrapped: boolean;
